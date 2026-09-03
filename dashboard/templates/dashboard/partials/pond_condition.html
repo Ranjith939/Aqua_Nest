@@ -1,0 +1,33 @@
+{% comment %}
+  Plain-language explanation of the current condition, and the handover into
+  Intelligence for the "why".
+{% endcomment %}
+<section class="os-window glass--primary condition-window reveal" style="--reveal-delay: 300ms">
+
+  <header class="os-window__header">
+    <h2 class="os-window__title">
+      <i class="os-window__glyph" aria-hidden="true">&#9678;</i>Current Pond Condition
+    </h2>
+    <div class="os-window__controls" aria-hidden="true">
+      <button class="os-window__ctl" type="button" tabindex="-1">&minus;</button>
+      <button class="os-window__ctl os-window__ctl--close" type="button" tabindex="-1">&times;</button>
+    </div>
+  </header>
+
+  <div class="os-window__body condition-body">
+    <div class="condition-main">
+      <p class="condition-headline condition-headline--{{ pond.condition.tone }}"
+         data-condition-headline data-tone="{{ pond.condition.tone }}">
+        <i class="dot dot--{{ pond.condition.tone }}" data-condition-dot></i>
+        <span data-condition-title>{{ pond.condition.headline }}</span>
+      </p>
+      <p class="condition-detail" data-condition-detail>{{ pond.condition.detail }}</p>
+    </div>
+
+    <a class="btn btn--primary condition-cta" href="{% url 'dashboard:intelligence' %}">
+      <svg class="icon icon--sm"><use href="#i-pulse"></use></svg>
+      Understand with AI
+      <svg class="icon icon--xs"><use href="#i-arrow-right"></use></svg>
+    </a>
+  </div>
+</section>

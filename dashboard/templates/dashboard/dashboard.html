@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% load static asset_tags %}
+
+{% block title %}Dashboard &middot; AQUA NEST{% endblock %}
+
+{% block content %}
+  {% include "dashboard/partials/hero.html" %}
+  {% include "dashboard/partials/kpi_cards.html" %}
+
+  <div class="content-grid">
+    <div class="content-grid__main">
+      {% include "dashboard/partials/farm_overview.html" %}
+      {% include "dashboard/partials/water_quality.html" %}
+    </div>
+    <div class="content-grid__side">
+      {% include "dashboard/partials/alerts_panel.html" %}
+      {% include "dashboard/partials/recent_activity.html" %}
+    </div>
+  </div>
+
+  {% include "dashboard/partials/quick_actions.html" %}
+{% endblock %}
+
+{% block extra_js %}
+  <script src="{% static_v 'dashboard/js/chart.js' %}" defer></script>
+{% endblock %}

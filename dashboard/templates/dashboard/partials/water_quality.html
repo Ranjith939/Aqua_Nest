@@ -1,0 +1,72 @@
+{% comment %}
+  Water Quality Trends.
+
+  The chart is drawn by static/dashboard/js/chart.js from the JSON payload
+  below - swap `chart_data` for an API response later and nothing else moves.
+{% endcomment %}
+<section class="os-window glass--primary panel--chart reveal" style="--reveal-delay: 700ms">
+
+  <header class="os-window__header">
+    <h2 class="os-window__title"><i class="os-window__glyph" aria-hidden="true">&#9636;</i>Water Quality Trends</h2>
+    <div class="os-window__controls" aria-hidden="true">
+      <button class="os-window__ctl" type="button" tabindex="-1">&minus;</button>
+      <button class="os-window__ctl" type="button" tabindex="-1">&#9633;</button>
+      <button class="os-window__ctl os-window__ctl--close" type="button" tabindex="-1">&times;</button>
+    </div>
+  </header>
+
+  <div class="os-window__body">
+
+
+
+  <header class="panel__head panel__head--tools">
+    <div class="panel__tools">
+      <div class="segmented" data-range>
+        <button class="segmented__btn is-active" type="button" data-range-option>24h</button>
+        <button class="segmented__btn" type="button" data-range-option>7d</button>
+        <button class="segmented__btn" type="button" data-range-option>30d</button>
+      </div>
+
+      <div class="dropdown" data-dropdown>
+        <button class="chip chip--button chip--sm" type="button" data-dropdown-toggle
+                aria-expanded="false" aria-haspopup="true">
+          <span class="chip__text" data-chart-pond-label>Pond 1</span>
+          <svg class="icon icon--xs chip__caret"><use href="#i-chevron-down"></use></svg>
+        </button>
+        <div class="dropdown__menu dropdown__menu--right glass glass--pop" data-dropdown-menu hidden>
+          {% for pond in ponds %}
+            <button class="dropdown__item dropdown__item--slim{% if forloop.first %} is-selected{% endif %}"
+                    type="button" data-chart-pond="{{ pond.id }}">
+              <i class="dot dot--{{ pond.status }}"></i>{{ pond.name }}
+            </button>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="chart" data-chart>
+    <div class="chart__plot" data-chart-plot>
+      <svg class="chart__svg" data-chart-svg role="img"
+           aria-label="Dummy 24 hour trend of temperature, pH and dissolved oxygen"></svg>
+      <div class="chart__tooltip glass glass--pop" data-chart-tooltip hidden></div>
+    </div>
+    <div class="chart__axis" data-chart-axis></div>
+  </div>
+
+  <ul class="legend" data-chart-legend>
+    {% for series in chart_data.series %}
+      <li>
+        <button class="legend__item is-active" type="button"
+                data-series="{{ series.key }}" style="--series: {{ series.color }}">
+          <i class="legend__swatch"></i>
+          <span class="legend__label">{{ series.label }}</span>
+          <span class="legend__value" data-series-value="{{ series.key }}">&mdash;</span>
+        </button>
+      </li>
+    {% endfor %}
+  </ul>
+
+  {{ chart_data|json_script:"wq-chart-data" }}
+  </div>
+</section>

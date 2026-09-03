@@ -1,0 +1,234 @@
+{% load static asset_tags %}{% comment %}
+  The living underwater scene behind the entire application.
+
+  Depth layers (z-index inside .ocean):
+    0 deep water        1 light rays + caustics    2 distant water haze
+    3 distant reef      4 3D herring + SVG shoal   5 foreground reef & flora
+    6 bubbles + motes   8 vignette
+
+  Everything here is decorative: aria-hidden, pointer-events:none, and
+  driven by transform/opacity so it stays composited and cheap.
+{% endcomment %}
+<div class="ocean" aria-hidden="true">
+
+  {# ---- 0/1. Deep water and the pool of sunlight at the surface -------- #}
+  <div class="ocean__deep"></div>
+  <div class="ocean__surface"></div>
+  <div class="ocean__glow"></div>
+
+  {# ---- 1. Sunlight rays falling through the water --------------------- #}
+  <div class="ocean__rays">
+    <span class="ray ray--1"></span>
+    <span class="ray ray--2"></span>
+    <span class="ray ray--3"></span>
+    <span class="ray ray--4"></span>
+    <span class="ray ray--5"></span>
+    <span class="ray ray--6"></span>
+    <span class="ray ray--7"></span>
+    <span class="ray ray--8"></span>
+  </div>
+
+  {% comment %}
+    ---- 1. Water caustics ----
+    Caustic veins from a *static* fractal-noise filter that the browser
+    rasterises once; only the cheap transform animates. Two layers drifting
+    against each other create the shifting interference.
+  {% endcomment %}
+  <div class="ocean__caustics">
+    <svg class="caustic caustic--a" viewBox="0 0 1200 760" preserveAspectRatio="xMidYMid slice">
+      <defs>
+        <filter id="causticA" x="-12%" y="-12%" width="124%" height="124%"
+                color-interpolation-filters="sRGB">
+          <feTurbulence type="fractalNoise" baseFrequency="0.032 0.044"
+                        numOctaves="3" seed="4"/>
+          <feColorMatrix type="matrix" values="
+            0 0 0 0 0.72
+            0 0 0 0 0.97
+            0 0 0 0 1
+            13 0 0 0 -6.65"/>
+          <feGaussianBlur stdDeviation="0.7"/>
+        </filter>
+      </defs>
+      <rect width="1200" height="760" filter="url(#causticA)"/>
+    </svg>
+
+    <svg class="caustic caustic--b" viewBox="0 0 1200 760" preserveAspectRatio="xMidYMid slice">
+      <defs>
+        <filter id="causticB" x="-12%" y="-12%" width="124%" height="124%"
+                color-interpolation-filters="sRGB">
+          <feTurbulence type="fractalNoise" baseFrequency="0.047 0.03"
+                        numOctaves="2" seed="19"/>
+          <feColorMatrix type="matrix" values="
+            0 0 0 0 0.66
+            0 0 0 0 0.95
+            0 0 0 0 1
+            11.5 0 0 0 -6.05"/>
+          <feGaussianBlur stdDeviation="1"/>
+        </filter>
+      </defs>
+      <rect width="1200" height="760" filter="url(#causticB)"/>
+    </svg>
+  </div>
+
+  {# ---- 2. Distant water haze - the far wall of the ocean -------------- #}
+  <div class="ocean__haze"></div>
+
+  {# ---- 3. Distant reef: silhouettes only, heavily blurred ------------- #}
+  <div class="reef reef--far">
+    <svg viewBox="0 0 1440 220" preserveAspectRatio="none">
+      <path fill="#0a4a68" fill-opacity=".55" d="M0 158c70-16 104 10 172 4s96-34 158-28 84 40 148 38 92-40 156-36 96 34 158 30 92-28 152-22 88 20 168 12v64H0z"/>
+      <g fill="#0d5f7e" fill-opacity=".45">
+        <path d="M120 220c-6-30 4-46 18-56-4 18 0 30 10 40-2-18 4-30 16-38-8 22 0 38 14 54z"/>
+        <path d="M520 220c-5-24 3-38 15-46-3 15 0 25 8 33-2-15 3-25 13-31-7 18 0 31 12 44z"/>
+        <path d="M900 220c-7-32 4-50 20-60-5 20 0 32 11 43-2-19 5-32 17-41-9 24 0 41 15 58z"/>
+        <path d="M1290 220c-6-27 3-42 17-51-4 17 0 28 10 37-2-17 4-28 15-35-8 20 0 34 13 49z"/>
+      </g>
+    </svg>
+  </div>
+
+  {% comment %}
+    ---- 4. Real 3D herring ----
+    Loaded and animated by reef3d.js. While the schools are running the
+    `.has-reef3d` class hides the SVG shoal below, which is the fallback
+    for reduced motion, small screens and machines without WebGL.
+  {% endcomment %}
+  <canvas class="ocean__reef3d" data-reef-canvas
+          data-model-reef="{% static_v 'dashboard/models/chaotic_marine_life.glb' %}"
+          data-model-fish="{% static_v 'dashboard/models/cartoon_clownfish_animated.glb' %}"
+          data-model-fish2="{% static_v 'dashboard/models/tosakin_goldfish.glb' %}"></canvas>
+
+  {# SVG shoal - fallback only. #}
+  <div class="ocean__shoal ocean__shoal--far">
+    <svg class="swimmer swimmer--f1"><use href="#i-fish"></use></svg>
+    <svg class="swimmer swimmer--f2"><use href="#i-fish"></use></svg>
+    <svg class="swimmer swimmer--f3"><use href="#i-fish"></use></svg>
+    <svg class="swimmer swimmer--f4"><use href="#i-fish"></use></svg>
+    <svg class="swimmer swimmer--f5"><use href="#i-fish"></use></svg>
+  </div>
+
+  <div class="ocean__shoal ocean__shoal--mid">
+    <svg class="swimmer swimmer--m1"><use href="#i-fish"></use></svg>
+    <svg class="swimmer swimmer--m2"><use href="#i-fish"></use></svg>
+    <svg class="swimmer swimmer--m3"><use href="#i-fish"></use></svg>
+    <svg class="swimmer swimmer--m4"><use href="#i-fish"></use></svg>
+  </div>
+
+  <div class="ocean__shoal ocean__shoal--near">
+    <svg class="swimmer swimmer--n1"><use href="#i-fish"></use></svg>
+    <svg class="swimmer swimmer--n2"><use href="#i-fish"></use></svg>
+    <svg class="swimmer swimmer--n3"><use href="#i-fish"></use></svg>
+  </div>
+
+  {# Jellyfish drift up the far edges regardless of the 3D layer. #}
+  <div class="ocean__jellies">
+    <svg class="jelly jelly--1"><use href="#i-jelly"></use></svg>
+    <svg class="jelly jelly--2"><use href="#i-jelly"></use></svg>
+  </div>
+
+  {# ---- 5. Midground reef: the ocean floor the dashboard floats above -- #}
+  <div class="reef reef--mid">
+    <svg viewBox="0 0 1440 260" preserveAspectRatio="none">
+      <defs>
+        <linearGradient id="floorGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#12768f" stop-opacity=".72"/>
+          <stop offset="100%" stop-color="#062b40" stop-opacity=".96"/>
+        </linearGradient>
+      </defs>
+
+      <path fill="url(#floorGrad)" d="M0 196c76-18 116 8 182 2 64-6 94-32 156-26 60 6 82 38 144 36 60-2 94-36 156-32s96 32 156 28 90-28 148-22 86 20 170 10v64H0z"/>
+
+      {# swaying sea grass #}
+      <g class="reef__grass">
+        <path class="blade blade--a" fill="#17a08c" fill-opacity=".6" d="M196 260c-9-34-3-64 7-92 6-16 6-30-2-45 16 13 22 32 18 54-4 24-10 50-4 83z"/>
+        <path class="blade blade--b" fill="#1cb89a" fill-opacity=".5" d="M224 260c-6-29 0-54 10-76 6-13 8-26 4-38 14 13 18 30 12 49-6 21-14 42-10 65z"/>
+        <path class="blade blade--c" fill="#17a08c" fill-opacity=".54" d="M248 260c-5-24 1-45 9-63 5-11 6-22 3-32 12 11 15 26 11 42-5 18-11 35-8 53z"/>
+        <path class="blade blade--d" fill="#1cb89a" fill-opacity=".46" d="M1188 260c-11-37-5-70 5-100 6-17 6-32-4-48 18 14 26 35 22 59-4 26-12 54-6 89z"/>
+        <path class="blade blade--e" fill="#17a08c" fill-opacity=".56" d="M1216 260c-6-30 2-57 12-79 6-13 8-26 2-38 16 13 20 32 14 52-6 21-14 42-10 65z"/>
+        <path class="blade blade--f" fill="#1cb89a" fill-opacity=".44" d="M1242 260c-5-25 2-47 10-65 5-11 6-21 2-31 13 11 16 26 11 43-5 18-11 35-7 53z"/>
+        <path class="blade blade--g" fill="#17a08c" fill-opacity=".5" d="M612 260c-8-27-2-50 8-70 5-11 6-21 2-32 13 11 17 27 12 44-6 19-12 37-8 58z"/>
+        <path class="blade blade--h" fill="#1cb89a" fill-opacity=".42" d="M646 260c-6-23-1-43 7-60 4-10 5-19 2-28 11 10 14 24 10 39-5 17-10 33-7 49z"/>
+        <path class="blade blade--i" fill="#17a08c" fill-opacity=".46" d="M862 260c-8-28-2-52 8-72 5-11 7-22 3-33 13 12 17 28 12 46-6 19-13 38-9 59z"/>
+      </g>
+
+      {# coral heads and fans #}
+      <g class="reef__coral">
+        <path fill="#1f8fa8" fill-opacity=".72" d="M96 260c-5-30 5-46 20-56-5 18 0 30 11 40-3-18 5-30 18-38-9 23 0 39 15 54z"/>
+        <path fill="#8a5fc8" fill-opacity=".38" d="M138 260c-4-22 4-34 15-41-4 13 0 22 8 29-2-13 4-22 13-28-6 17 0 28 11 40z"/>
+        <path fill="#e0708f" fill-opacity=".32" d="M1330 260c-5-26 4-40 17-48-4 15 0 26 9 34-2-15 4-26 15-32-7 19 0 33 13 46z"/>
+        <path fill="#1f8fa8" fill-opacity=".66" d="M1372 260c-4-24 4-37 16-45-4 14 0 24 9 32-2-14 4-24 14-30-7 18 0 30 12 43z"/>
+        <path fill="#25a3ba" fill-opacity=".55" d="M712 260c-4-21 3-33 14-40-3 13 0 21 7 28-2-13 4-21 12-27-6 16 0 27 11 39z"/>
+        <path fill="#8a5fc8" fill-opacity=".28" d="M1042 260c-4-23 4-36 15-43-4 14 0 23 8 31-2-14 4-23 13-29-7 17 0 29 12 41z"/>
+      </g>
+
+      {# rocks #}
+      <g fill="#0a3d55" fill-opacity=".7">
+        <ellipse cx="368" cy="252" rx="34" ry="13"/>
+        <ellipse cx="418" cy="256" rx="20" ry="9"/>
+        <ellipse cx="948" cy="254" rx="28" ry="11"/>
+        <ellipse cx="1120" cy="257" rx="22" ry="9"/>
+      </g>
+    </svg>
+  </div>
+
+  {# ---- 5. Foreground reef in the bottom corners ----------------------- #}
+  <div class="reef-corner reef-corner--left">
+    <svg viewBox="0 0 300 220">
+      {# sea fan #}
+      <g fill="none" stroke="#e0708f" stroke-opacity=".34" stroke-width="6" stroke-linecap="round">
+        <path d="M52 220c-8-52 4-88 32-118"/>
+        <path d="M52 178c-18-16-24-38-22-62"/>
+        <path d="M60 146c16-18 22-40 20-64"/>
+        <path d="M70 120c20-10 34-26 40-48"/>
+      </g>
+      {# anemone #}
+      <g class="anemone">
+        <g fill="none" stroke="#38c9d8" stroke-opacity=".46" stroke-width="5" stroke-linecap="round">
+          <path d="M150 220c-4-26-2-42 4-56"/>
+          <path d="M150 220c-14-22-18-38-16-54"/>
+          <path d="M150 220c8-26 12-42 8-58"/>
+          <path d="M150 220c18-20 24-36 22-52"/>
+        </g>
+        <circle cx="152" cy="196" r="16" fill="#8a5fc8" fill-opacity=".26"/>
+      </g>
+      {# bright coral cluster #}
+      <g fill="#2fb6c6" fill-opacity=".34">
+        <circle cx="96" cy="150" r="15"/><circle cx="84" cy="134" r="10"/>
+        <circle cx="30" cy="172" r="12"/><circle cx="118" cy="126" r="9"/>
+      </g>
+      <g fill="#ffab6b" fill-opacity=".22">
+        <circle cx="212" cy="196" r="13"/><circle cx="230" cy="184" r="8"/>
+      </g>
+    </svg>
+  </div>
+
+  <div class="reef-corner reef-corner--right">
+    <svg viewBox="0 0 300 220">
+      <g fill="none" stroke="#38c9d8" stroke-opacity=".38" stroke-width="7" stroke-linecap="round">
+        <path d="M244 220c10-56-6-92-38-122"/>
+        <path d="M246 176c20-18 26-40 22-64"/>
+        <path d="M232 142c-16-20-22-42-18-66"/>
+      </g>
+      <g class="anemone anemone--b">
+        <g fill="none" stroke="#e0708f" stroke-opacity=".3" stroke-width="5" stroke-linecap="round">
+          <path d="M140 220c-6-24-4-40 2-54"/>
+          <path d="M140 220c-16-20-20-36-16-52"/>
+          <path d="M140 220c10-24 14-40 10-56"/>
+        </g>
+        <circle cx="140" cy="198" r="14" fill="#ffab6b" fill-opacity=".22"/>
+      </g>
+      <g fill="#8a5fc8" fill-opacity=".26">
+        <circle cx="188" cy="158" r="16"/><circle cx="202" cy="142" r="10"/>
+      </g>
+      <g fill="#2fb6c6" fill-opacity=".3">
+        <circle cx="272" cy="168" r="13"/><circle cx="58" cy="200" r="11"/>
+      </g>
+    </svg>
+  </div>
+
+  {# ---- 6. Bubbles and motes - populated by ocean.js ------------------- #}
+  <div class="ocean__bubbles" data-ocean-bubbles></div>
+  <div class="ocean__particles" data-ocean-particles></div>
+
+  {# ---- 8. Vignette that keeps the glass panels readable --------------- #}
+  <div class="ocean__vignette"></div>
+</div>

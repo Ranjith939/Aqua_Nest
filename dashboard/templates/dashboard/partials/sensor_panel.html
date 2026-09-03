@@ -1,0 +1,32 @@
+{% comment %} Live sensor readings - the technical evidence behind the twin. {% endcomment %}
+<section class="os-window glass--primary sensors-window reveal" style="--reveal-delay: 200ms">
+
+  <header class="os-window__header">
+    <h2 class="os-window__title">
+      <i class="os-window__glyph" aria-hidden="true">&#9636;</i>Live Sensors
+    </h2>
+    <div class="os-window__controls" aria-hidden="true">
+      <button class="os-window__ctl" type="button" tabindex="-1">&minus;</button>
+      <button class="os-window__ctl" type="button" tabindex="-1">&#9633;</button>
+      <button class="os-window__ctl os-window__ctl--close" type="button" tabindex="-1">&times;</button>
+    </div>
+  </header>
+
+  <div class="os-window__body">
+    <ul class="sensor-list" data-sensor-list>
+      {% for s in pond.sensors %}
+        <li class="sensor-row sensor-row--{{ s.tone }}" data-sensor="{{ s.key }}">
+          <span class="sensor-row__icon status-icon status-icon--{{ s.tone }} status-icon--sm">
+            <svg class="icon icon--sm"><use href="#i-{{ s.icon }}"></use></svg>
+          </span>
+          <span class="sensor-row__label">{{ s.label }}</span>
+          <span class="sensor-row__value">
+            <em data-sensor-value>{{ s.value }}</em>
+            {% if s.unit %}<i data-sensor-unit>{{ s.unit }}</i>{% endif %}
+          </span>
+          <span class="sensor-row__status" data-sensor-status>{{ s.status }}</span>
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+</section>

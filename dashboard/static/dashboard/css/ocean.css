@@ -1,0 +1,555 @@
+/* ==========================================================================
+   AQUA NEST - ocean.css
+   The living underwater scene that sits behind the whole application.
+
+   Self-contained: this file styles only `partials/ocean.html`. Everything is
+   decorative and animates with transform / opacity so it stays composited.
+
+   Depth layers (z-index inside .ocean):
+     0 deep water    1 sunlight pool   2 light rays   3 caustics
+     4 reef + flora  5 marine life     6 bubbles      7 motes    8 vignette
+   ========================================================================== */
+
+.ocean {
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  overflow: hidden;
+  pointer-events: none;
+  background: #062a40;
+  contain: layout paint;
+}
+
+.ocean > * {
+  position: absolute;
+  will-change: transform;
+}
+
+/* --------------------------------------------------------------------------
+   0. Deep water
+   -------------------------------------------------------------------------- */
+
+.ocean__deep {
+  z-index: 0;
+  inset: -8%;
+  background:
+    radial-gradient(122% 84% at 50% -16%,
+      #5fe3ec 0%,
+      #33c2d8 9%,
+      #1ba3c2 19%,
+      #1287ab 30%,
+      #0d6d94 42%,
+      #0a577d 55%,
+      #0a5175 68%,
+      #094a6b 80%,
+      #08405d 90%,
+      #073950 100%);
+  animation: deep-drift 30s ease-in-out infinite alternate;
+}
+
+@keyframes deep-drift {
+  from { transform: translate3d(-1.4%, 0.6%, 0) scale(1.03); }
+  to   { transform: translate3d(1.4%, -0.8%, 0) scale(1.07); }
+}
+
+/* --------------------------------------------------------------------------
+   1. The pool of sunlight where the surface meets the water
+   -------------------------------------------------------------------------- */
+
+.ocean__surface {
+  z-index: 1;
+  top: -8vh;
+  left: -12%;
+  right: -12%;
+  height: 52vh;
+  background:
+    radial-gradient(58% 100% at 18% 0%, rgba(190, 252, 255, 0.46), transparent 66%),
+    radial-gradient(46% 100% at 52% 0%, rgba(150, 244, 255, 0.4), transparent 68%),
+    radial-gradient(52% 100% at 84% 0%, rgba(174, 248, 255, 0.34), transparent 70%);
+  filter: blur(28px);
+  animation: surface-shift 22s ease-in-out infinite alternate;
+}
+
+/* A broad aqua bloom that keeps the mid-screen from going flat and navy. */
+.ocean__glow {
+  z-index: 1;
+  inset: 0;
+  background:
+    /* Cyan stays dominant... */
+    radial-gradient(70% 46% at 22% 26%, rgba(72, 216, 236, 0.2), transparent 68%),
+    radial-gradient(64% 44% at 82% 44%, rgba(52, 196, 224, 0.17), transparent 70%),
+    radial-gradient(86% 54% at 50% 86%, rgba(40, 176, 212, 0.22), transparent 76%),
+    /* ...with bioluminescent accents low in the water, where the reef is:
+       purple and pink coral glow, one warm fish highlight. Small alphas on
+       purpose - this is a tint in the water, not a colour wash. */
+    radial-gradient(40% 32% at 11% 88%, rgba(139, 108, 255, 0.17), transparent 70%),
+    radial-gradient(36% 28% at 89% 91%, rgba(255, 111, 174, 0.14), transparent 72%),
+    radial-gradient(26% 22% at 76% 63%, rgba(255, 184, 107, 0.09), transparent 74%),
+    radial-gradient(30% 24% at 33% 71%, rgba(78, 227, 154, 0.08), transparent 74%);
+  mix-blend-mode: screen;
+  animation: glow-breathe 34s ease-in-out infinite alternate;
+}
+
+@keyframes surface-shift {
+  from { transform: translate3d(-3%, -1.5%, 0) scaleY(1); opacity: 0.88; }
+  to   { transform: translate3d(3%, 1.5%, 0) scaleY(1.12); opacity: 1; }
+}
+
+@keyframes glow-breathe {
+  from { transform: translate3d(-1.5%, 1%, 0) scale(1); opacity: 0.75; }
+  to   { transform: translate3d(1.5%, -1%, 0) scale(1.08); opacity: 1; }
+}
+
+/* --------------------------------------------------------------------------
+   2. Sunlight rays
+   -------------------------------------------------------------------------- */
+
+.ocean__rays {
+  z-index: 2;
+  top: -14vh;
+  left: -10%;
+  right: -10%;
+  height: 150vh;
+  opacity: 0.62;
+  filter: blur(18px);
+  mix-blend-mode: screen;
+}
+
+.ray {
+  position: absolute;
+  top: 0;
+  width: var(--w, 130px);
+  height: 150vh;
+  background: linear-gradient(to bottom,
+    rgba(214, 253, 255, 0.62) 0%,
+    rgba(190, 248, 255, 0.3) 30%,
+    rgba(168, 242, 255, 0.13) 56%,
+    rgba(150, 238, 255, 0.04) 76%,
+    transparent 88%);
+  transform-origin: top center;
+  animation: ray-sway var(--dur, 16s) ease-in-out var(--delay, 0s) infinite alternate;
+}
+
+.ray--1 { left: 4%;  --w: 152px; --dur: 17s; --delay: -2s;  --tilt: 9deg;  }
+.ray--2 { left: 17%; --w: 96px;  --dur: 21s; --delay: -6s;  --tilt: 13deg; opacity: 0.82; }
+.ray--3 { left: 31%; --w: 196px; --dur: 25s; --delay: -1s;  --tilt: 7deg;  opacity: 0.78; }
+.ray--4 { left: 46%; --w: 112px; --dur: 19s; --delay: -9s;  --tilt: 15deg; }
+.ray--5 { left: 58%; --w: 172px; --dur: 23s; --delay: -4s;  --tilt: 10deg; opacity: 0.74; }
+.ray--6 { left: 71%; --w: 88px;  --dur: 27s; --delay: -12s; --tilt: 17deg; opacity: 0.66; }
+.ray--7 { left: 83%; --w: 164px; --dur: 20s; --delay: -15s; --tilt: 11deg; opacity: 0.7; }
+.ray--8 { left: 94%; --w: 104px; --dur: 29s; --delay: -7s;  --tilt: 14deg; opacity: 0.6; }
+
+@keyframes ray-sway {
+  from { transform: rotate(calc(var(--tilt) * -1)) translateX(-2vw) scaleY(0.96); opacity: 0.38; }
+  to   { transform: rotate(var(--tilt)) translateX(2vw) scaleY(1.05); opacity: 0.9; }
+}
+
+/* --------------------------------------------------------------------------
+   3. Caustics
+   The fractal-noise filter is static, so the browser rasterises each layer
+   once; only the transform animates. Two layers sliding against each other
+   read as shifting light on moving water.
+   -------------------------------------------------------------------------- */
+
+.ocean__caustics {
+  z-index: 3;
+  inset: -14%;
+  mix-blend-mode: screen;
+  opacity: 0.38;
+  /* Caustics are strongest just under the surface and fade with depth. */
+  -webkit-mask-image: linear-gradient(to bottom, #000 0%, rgba(0, 0, 0, 0.62) 42%, rgba(0, 0, 0, 0.18) 72%, transparent 92%);
+  mask-image: linear-gradient(to bottom, #000 0%, rgba(0, 0, 0, 0.62) 42%, rgba(0, 0, 0, 0.18) 72%, transparent 92%);
+}
+
+.caustic {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.caustic--a {
+  opacity: 0.85;
+  animation: caustic-a 44s ease-in-out infinite alternate;
+}
+
+.caustic--b {
+  opacity: 0.62;
+  animation: caustic-b 62s ease-in-out infinite alternate;
+}
+
+@keyframes caustic-a {
+  from { transform: translate3d(-2.5%, -1.6%, 0) scale(1.04); }
+  to   { transform: translate3d(3%, 2.2%, 0) scale(1.16); }
+}
+
+@keyframes caustic-b {
+  from { transform: translate3d(2.4%, 1.8%, 0) scale(1.14) rotate(0.6deg); }
+  to   { transform: translate3d(-3%, -2.4%, 0) scale(1.02) rotate(-0.9deg); }
+}
+
+/* --------------------------------------------------------------------------
+   2. Distant water haze - the far wall of the ocean
+   -------------------------------------------------------------------------- */
+
+.ocean__haze {
+  z-index: 2;
+  inset: 0;
+  background: linear-gradient(to bottom,
+    transparent 38%,
+    rgba(16, 116, 148, 0.2) 68%,
+    rgba(11, 86, 118, 0.32) 100%);
+}
+
+/* --------------------------------------------------------------------------
+   3/5. Coral reef, in three depth layers
+   Everything sits above the taskbar height so the reef reads as the floor
+   the taskbar is resting on.
+   -------------------------------------------------------------------------- */
+
+.reef {
+  left: 0;
+  right: 0;
+  bottom: calc(var(--taskbar-h, 42px) - 8px);
+}
+
+.reef svg { width: 100%; height: 100%; display: block; }
+
+/* Distant: silhouettes only, heavily blurred, low contrast. */
+.reef--far {
+  z-index: 3;
+  height: clamp(110px, 17vh, 210px);
+  bottom: calc(var(--taskbar-h, 42px) + 10px);
+  filter: blur(5px);
+  opacity: 0.5;
+  animation: reef-breathe 34s ease-in-out infinite alternate;
+}
+
+/* Midground: the actual sea floor with grass, coral heads and rocks. */
+.reef--mid {
+  z-index: 5;
+  height: clamp(150px, 22vh, 270px);
+  opacity: 0.9;
+  filter: blur(0.5px);
+  animation: reef-breathe 26s ease-in-out infinite alternate;
+}
+
+@keyframes reef-breathe {
+  from { transform: translate3d(-0.6%, 4px, 0); }
+  to   { transform: translate3d(0.6%, 0, 0); }
+}
+
+/* Sea grass bending in the current. */
+.blade {
+  transform-box: fill-box;
+  transform-origin: bottom center;
+  animation: weed-sway var(--dur, 9s) ease-in-out var(--delay, 0s) infinite alternate;
+}
+
+.blade--a { --dur: 8.5s;  --delay: -1s; }
+.blade--b { --dur: 11s;   --delay: -3s; }
+.blade--c { --dur: 9.5s;  --delay: -5s; }
+.blade--d { --dur: 12.5s; --delay: -2s; }
+.blade--e { --dur: 10s;   --delay: -7s; }
+.blade--f { --dur: 13s;   --delay: -4s; }
+.blade--g { --dur: 9s;    --delay: -8s; }
+.blade--h { --dur: 11.5s; --delay: -6s; }
+.blade--i { --dur: 10.5s; --delay: -2.5s; }
+
+@keyframes weed-sway {
+  from { transform: rotate(-4.5deg) skewX(2deg); }
+  to   { transform: rotate(4.5deg) skewX(-2deg); }
+}
+
+/* Soft coral breathing, far slower than the grass. */
+.reef__coral path {
+  transform-box: fill-box;
+  transform-origin: bottom center;
+  animation: coral-breathe 16s ease-in-out infinite alternate;
+}
+
+.reef__coral path:nth-child(2n) { animation-duration: 21s; animation-delay: -6s; }
+.reef__coral path:nth-child(3n) { animation-duration: 18s; animation-delay: -11s; }
+
+@keyframes coral-breathe {
+  from { transform: scaleY(1) rotate(-1deg); }
+  to   { transform: scaleY(1.05) rotate(1deg); }
+}
+
+/* Foreground reef, held to the bottom corners so the centre stays clean. */
+.reef-corner {
+  position: absolute;
+  z-index: 5;
+  bottom: calc(var(--taskbar-h, 42px) - 12px);
+  width: clamp(180px, 20vw, 300px);
+  height: clamp(140px, 16vw, 220px);
+  filter: blur(1.4px);
+  opacity: 0.82;
+}
+
+.reef-corner svg { width: 100%; height: 100%; display: block; }
+
+.reef-corner--left {
+  left: 0;
+  animation: flora-sway 15s ease-in-out infinite alternate;
+}
+
+.reef-corner--right {
+  right: 0;
+  animation: flora-sway 19s ease-in-out -6s infinite alternate-reverse;
+}
+
+@keyframes flora-sway {
+  from { transform: rotate(-1.6deg) translateY(2px); }
+  to   { transform: rotate(1.6deg) translateY(-3px); }
+}
+
+.anemone {
+  transform-box: fill-box;
+  transform-origin: bottom center;
+  animation: anemone-pulse 8s ease-in-out infinite alternate;
+}
+
+.anemone--b { animation-duration: 11s; animation-delay: -4s; }
+
+@keyframes anemone-pulse {
+  from { transform: scale(0.94) rotate(-2deg); }
+  to   { transform: scale(1.06) rotate(2deg); }
+}
+
+/* --------------------------------------------------------------------------
+   4. The real 3D herring
+   reef3d.js renders into this canvas. Once the schools are running it adds
+   `.has-reef3d`, which retires the SVG shoal below.
+   -------------------------------------------------------------------------- */
+
+.ocean__reef3d {
+  z-index: 4;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* With the real seabed and herring rendering, the hand-drawn SVG reef and
+   shoal step aside; they remain the fallback when 3D is unavailable. */
+.ocean.has-reef3d .ocean__shoal,
+.ocean.has-reef3d .reef,
+.ocean.has-reef3d .reef-corner { display: none; }
+
+/* --------------------------------------------------------------------------
+   5. Marine life
+   -------------------------------------------------------------------------- */
+
+.ocean__shoal,
+.ocean__jellies { z-index: 5; inset: 0; }
+
+.swimmer {
+  position: absolute;
+  top: var(--top, 40%);
+  left: 0;
+  width: var(--w, 120px);
+  height: calc(var(--w, 120px) / 2);
+  fill: var(--tint, rgba(198, 246, 255, 0.6));
+  opacity: var(--op, 0.42);
+  filter: blur(var(--blur, 1.4px));
+  animation: swim-right var(--dur, 70s) linear var(--delay, 0s) infinite;
+}
+
+/* -- distant: small, soft, slow ------------------------------------------- */
+.swimmer--f1 { --top: 21%; --w: 62px; --dur: 108s; --delay: -8s;  --op: 0.3;  --blur: 3px;   --tint: rgba(186, 240, 255, 0.6); }
+.swimmer--f2 { --top: 37%; --w: 48px; --dur: 126s; --delay: -46s; --op: 0.26; --blur: 3.4px; --tint: rgba(168, 232, 252, 0.6); }
+.swimmer--f3 { --top: 55%; --w: 70px; --dur: 116s; --delay: -74s; --op: 0.24; --blur: 3.8px; --tint: rgba(158, 228, 250, 0.6); }
+.swimmer--f4 { --top: 68%; --w: 44px; --dur: 138s; --delay: -22s; --op: 0.22; --blur: 3.2px; --tint: rgba(196, 244, 255, 0.55); }
+.swimmer--f5 { --top: 12%; --w: 56px; --dur: 120s; --delay: -92s; --op: 0.2;  --blur: 3.6px; --tint: rgba(176, 236, 254, 0.55); }
+
+/* -- mid depth: clearly readable silhouettes ------------------------------ */
+.swimmer--m1 { --top: 27%; --w: 126px; --dur: 82s;  --delay: -6s;  --op: 0.46; --blur: 1.5px; --tint: rgba(206, 250, 255, 0.72); }
+.swimmer--m2 { --top: 46%; --w: 96px;  --dur: 96s;  --delay: -38s; --op: 0.4;  --blur: 1.9px; --tint: rgba(255, 224, 168, 0.5); }
+.swimmer--m3 { --top: 62%; --w: 148px; --dur: 88s;  --delay: -60s; --op: 0.38; --blur: 2.2px; --tint: rgba(178, 240, 255, 0.66); }
+.swimmer--m4 { --top: 78%; --w: 82px;  --dur: 104s; --delay: -18s; --op: 0.34; --blur: 2px;   --tint: rgba(255, 214, 158, 0.44); }
+
+/* -- foreground: a few larger fish, held to the edges and lower corners --- */
+.swimmer--n1 {
+  --top: 84%; --w: 210px; --dur: 116s; --delay: -10s;
+  --op: 0.34; --blur: 2.6px; --tint: rgba(214, 252, 255, 0.62);
+}
+
+.swimmer--n2 {
+  --top: 72%; --w: 178px; --dur: 132s; --delay: -66s;
+  --op: 0.3; --blur: 3px; --tint: rgba(255, 216, 156, 0.42);
+}
+
+.swimmer--n3 {
+  --top: 90%; --w: 246px; --dur: 148s; --delay: -104s;
+  --op: 0.26; --blur: 3.4px; --tint: rgba(160, 236, 255, 0.55);
+}
+
+/* Half the shoal drifts the other way. */
+.swimmer--f2,
+.swimmer--f4,
+.swimmer--m2,
+.swimmer--m4,
+.swimmer--n2 { animation-name: swim-left; }
+
+@keyframes swim-right {
+  0%   { transform: translate3d(-26vw, 0, 0) rotate(-1.5deg); }
+  25%  { transform: translate3d(12vw, -2.6vh, 0) rotate(1.5deg); }
+  50%  { transform: translate3d(48vw, 1.8vh, 0) rotate(-1.2deg); }
+  75%  { transform: translate3d(84vw, -2vh, 0) rotate(1.4deg); }
+  100% { transform: translate3d(128vw, 0, 0) rotate(-1.5deg); }
+}
+
+@keyframes swim-left {
+  0%   { transform: translate3d(128vw, 0, 0) scaleX(-1) rotate(1.5deg); }
+  25%  { transform: translate3d(84vw, 2.2vh, 0) scaleX(-1) rotate(-1.4deg); }
+  50%  { transform: translate3d(48vw, -1.6vh, 0) scaleX(-1) rotate(1.2deg); }
+  75%  { transform: translate3d(12vw, 2vh, 0) scaleX(-1) rotate(-1.5deg); }
+  100% { transform: translate3d(-26vw, 0, 0) scaleX(-1) rotate(1.5deg); }
+}
+
+/* Jellyfish: a slow vertical drift with a gentle bell pulse. */
+.jelly {
+  position: absolute;
+  left: var(--x, 4%);
+  bottom: -22vh;
+  width: var(--w, 54px);
+  height: calc(var(--w, 54px) * 1.7);
+  fill: var(--tint, rgba(196, 244, 255, 0.5));
+  opacity: 0;
+  filter: blur(var(--blur, 2.4px)) drop-shadow(0 0 16px rgba(139, 108, 255, 0.34));
+  animation: jelly-rise var(--dur, 96s) linear var(--delay, 0s) infinite;
+}
+
+.jelly--1 { --x: 3.5%;  --w: 58px; --dur: 104s; --delay: -18s; --tint: rgba(178, 152, 255, 0.44); }
+.jelly--2 { --x: 92.5%; --w: 44px; --dur: 128s; --delay: -74s; --tint: rgba(255, 150, 200, 0.36); --blur: 3px; }
+
+@keyframes jelly-rise {
+  0%   { transform: translate3d(0, 0, 0) scaleY(1); opacity: 0; }
+  10%  { opacity: 0.9; }
+  25%  { transform: translate3d(2.2vw, -32vh, 0) scaleY(0.9); }
+  50%  { transform: translate3d(-1.4vw, -64vh, 0) scaleY(1.06); }
+  75%  { transform: translate3d(1.8vw, -96vh, 0) scaleY(0.92); }
+  88%  { opacity: 0.85; }
+  100% { transform: translate3d(0, -128vh, 0) scaleY(1); opacity: 0; }
+}
+
+/* --------------------------------------------------------------------------
+   6/7. Bubbles and drifting motes  (both populated by ocean.js)
+   -------------------------------------------------------------------------- */
+
+.ocean__bubbles { z-index: 6; inset: 0; }
+.ocean__particles { z-index: 7; inset: 0; }
+
+.bubble {
+  position: absolute;
+  bottom: -10vh;
+  left: var(--x, 50%);
+  width: var(--size, 10px);
+  height: var(--size, 10px);
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 32% 28%,
+      rgba(255, 255, 255, 0.95) 0%,
+      rgba(224, 250, 255, 0.34) 32%,
+      rgba(255, 255, 255, 0.08) 56%,
+      transparent 72%);
+  box-shadow:
+    inset 0 0 7px rgba(255, 255, 255, 0.42),
+    0 0 10px rgba(168, 240, 255, 0.24);
+  border: 1px solid rgba(233, 253, 255, 0.28);
+  opacity: 0;
+  animation: bubble-rise var(--dur, 18s) linear var(--delay, 0s) infinite;
+}
+
+@keyframes bubble-rise {
+  0%   { transform: translate3d(0, 0, 0) scale(0.66); opacity: 0; }
+  8%   { opacity: var(--peak, 0.5); }
+  32%  { transform: translate3d(calc(var(--drift, 20px) * 0.6), -34vh, 0) scale(0.96); }
+  50%  { transform: translate3d(var(--drift, 20px), -58vh, 0) scale(1.04); }
+  74%  { transform: translate3d(calc(var(--drift, 20px) * -0.2), -88vh, 0) scale(0.98); }
+  86%  { opacity: var(--peak, 0.5); }
+  100% { transform: translate3d(calc(var(--drift, 20px) * -0.7), -122vh, 0) scale(1.12); opacity: 0; }
+}
+
+.mote {
+  position: absolute;
+  top: var(--y, 50%);
+  left: var(--x, 50%);
+  width: var(--size, 3px);
+  height: var(--size, 3px);
+  border-radius: 50%;
+  background: rgba(226, 253, 255, 0.85);
+  box-shadow: 0 0 9px rgba(176, 244, 255, 0.75);
+  opacity: var(--peak, 0.35);
+  animation: mote-float var(--dur, 26s) ease-in-out var(--delay, 0s) infinite alternate;
+}
+
+@keyframes mote-float {
+  from { transform: translate3d(0, 0, 0); opacity: calc(var(--peak, 0.35) * 0.3); }
+  to   { transform: translate3d(var(--dx, 40px), var(--dy, -70px), 0); opacity: var(--peak, 0.35); }
+}
+
+/* --------------------------------------------------------------------------
+   8. Vignette - shapes the light without draining colour from the scene
+   -------------------------------------------------------------------------- */
+
+.ocean__vignette {
+  z-index: 8;
+  inset: 0;
+  background:
+    radial-gradient(128% 94% at 50% 6%, transparent 48%, rgba(5, 46, 70, 0.2) 82%, rgba(4, 38, 58, 0.34) 100%),
+    linear-gradient(to bottom, rgba(10, 70, 98, 0.14) 0%, transparent 26%, transparent 72%, rgba(5, 46, 68, 0.24) 100%);
+  animation: none;
+  will-change: auto;
+}
+
+/* --------------------------------------------------------------------------
+   Performance + accessibility fallbacks
+   -------------------------------------------------------------------------- */
+
+/* `is-lite` is added by ocean.js on small or low-power devices. */
+.ocean.is-lite .caustic--b,
+.ocean.is-lite .reef-corner--right,
+.ocean.is-lite .jelly--2,
+.ocean.is-lite .swimmer--f3,
+.ocean.is-lite .swimmer--f4,
+.ocean.is-lite .swimmer--f5,
+.ocean.is-lite .swimmer--m4,
+.ocean.is-lite .swimmer--n2,
+.ocean.is-lite .swimmer--n3 { display: none; }
+
+.ocean.is-lite .ocean__reef3d { display: none; }
+.ocean.is-lite .ocean__rays { filter: blur(12px); opacity: 0.46; }
+.ocean.is-lite .ocean__caustics { opacity: 0.22; }
+
+@media (max-width: 900px) {
+  .caustic--b,
+  .swimmer--f4,
+  .swimmer--f5,
+  .swimmer--m4,
+  .swimmer--n3,
+  .jelly--2 { display: none; }
+
+  .ocean__rays { opacity: 0.46; }
+  .reef--mid { height: 145px; opacity: 0.76; }
+  .reef--far { display: none; }
+  .reef-corner { width: 140px; height: 120px; opacity: 0.6; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ocean *,
+  .ocean {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  .ocean__reef3d { display: none; }
+  .ocean.has-reef3d .ocean__shoal,
+  .ocean.has-reef3d .reef,
+  .ocean.has-reef3d .reef-corner { display: block; }
+  .bubble { opacity: 0.3; }
+  .mote { opacity: 0.28; }
+  .jelly { opacity: 0.5; bottom: 30vh; }
+}

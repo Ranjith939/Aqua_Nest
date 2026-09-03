@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% load static asset_tags %}
+
+{% block title %}Ponds &middot; AQUA NEST OS{% endblock %}
+
+{% block content %}
+  {% comment %}
+    Ponds is both the pond view and the farm view. It opens on the selected
+    pond - the Living Digital Twin and the evidence behind it - then widens
+    out to the whole farm below.
+  {% endcomment %}
+
+  {% include "dashboard/partials/hero.html" %}
+
+  <div class="content-grid ponds-grid">
+    <div class="content-grid__main">
+      {% include "dashboard/partials/digital_twin.html" %}
+      {% include "dashboard/partials/pond_condition.html" %}
+    </div>
+
+    <div class="content-grid__side">
+      {% include "dashboard/partials/pond_health.html" %}
+      {% include "dashboard/partials/sensor_panel.html" %}
+      {% include "dashboard/partials/actuator_status.html" %}
+    </div>
+  </div>
+
+  {% include "dashboard/partials/kpi_cards.html" %}
+
+  <div class="content-grid">
+    <div class="content-grid__main">
+      {% include "dashboard/partials/farm_overview.html" %}
+      {% include "dashboard/partials/water_quality.html" %}
+    </div>
+
+    <div class="content-grid__side">
+      {% include "dashboard/partials/alerts_panel.html" %}
+      {% include "dashboard/partials/recent_activity.html" %}
+    </div>
+  </div>
+
+  {% include "dashboard/partials/quick_actions.html" %}
+
+  {% comment %}
+    Every pond's interpreted state, so switching ponds is instant and the
+    twin can be driven entirely from the state layer.
+  {% endcomment %}
+  {{ pond_payload|json_script:"pond-data" }}
+{% endblock %}
+
+{% block extra_js %}
+  <script src="{% static_v 'dashboard/js/chart.js' %}" defer></script>
+  <script src="{% static_v 'dashboard/js/pond-twin.js' %}" defer></script>
+{% endblock %}

@@ -1,0 +1,35 @@
+{% comment %} Pond health score. Bands live in pond_state.HEALTH_BANDS. {% endcomment %}
+<section class="os-window glass--secondary health-window reveal" style="--reveal-delay: 100ms">
+
+  <header class="os-window__header">
+    <h2 class="os-window__title">
+      <i class="os-window__glyph" aria-hidden="true">&#9673;</i>Pond Health
+    </h2>
+    <div class="os-window__controls" aria-hidden="true">
+      <button class="os-window__ctl" type="button" tabindex="-1">&minus;</button>
+      <button class="os-window__ctl os-window__ctl--close" type="button" tabindex="-1">&times;</button>
+    </div>
+  </header>
+
+  <div class="os-window__body health-body">
+    <div class="health-score">
+      <p class="health-score__value">
+        <span data-health-score>{{ pond.health.score }}</span><small>/ 100</small>
+      </p>
+      <p class="health-score__band health-score__band--{{ pond.health.tone }}"
+         data-health-band data-tone="{{ pond.health.tone }}">
+        <i class="dot dot--{{ pond.health.tone }}"></i>{{ pond.health.band }}
+      </p>
+    </div>
+
+    <div class="health-meter">
+      <div class="health-meter__track">
+        <span class="health-meter__fill meter__fill--{{ pond.health.tone }}"
+              data-health-fill style="--meter: {{ pond.health.score }}%"></span>
+      </div>
+      <div class="health-meter__scale">
+        <span>0</span><span>50</span><span>100</span>
+      </div>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,66 @@
+{% comment %} Fixed glass sidebar: brand, primary navigation, motto. {% endcomment %}
+<aside class="sidebar glass" data-sidebar>
+
+  <div class="sidebar__brand">
+    <span class="sidebar__logo">
+      <svg class="icon"><use href="#i-wave"></use></svg>
+    </span>
+    <span class="sidebar__wordmark">
+      <strong>AQUA NEST OS</strong>
+      <small>Aquaculture Intelligence Platform</small>
+      <span class="os-label os-label--accent sidebar__version">v1.0</span>
+    </span>
+    <button class="sidebar__close icon-btn" type="button" data-sidebar-close aria-label="Close navigation">
+      <svg class="icon"><use href="#i-close"></use></svg>
+    </button>
+  </div>
+
+  <nav class="sidebar__nav" aria-label="Main navigation">
+    {% for item in nav_items %}
+      {% if item.group %}
+        {% ifchanged item.group %}
+          <p class="sidebar__label">{{ item.group }}</p>
+        {% endifchanged %}
+      {% endif %}
+      <a class="nav-link{% if active == item.key %} is-active{% endif %}"
+         href="{% url item.url %}" data-label="{{ item.label }}" title="{{ item.label }} - {{ item.hint }}"
+         {% if active == item.key %}aria-current="page"{% endif %}>
+        <span class="nav-link__icon">
+          <svg class="pixel-icon pixel-icon--lg"><use href="#p-{{ item.key }}"></use></svg>
+        </span>
+        <span class="nav-link__text">{{ item.label }}</span>
+        {% if item.badge %}<span class="nav-link__badge">{{ item.badge }}</span>{% endif %}
+      </a>
+    {% endfor %}
+  </nav>
+
+  <div class="sidebar__foot">
+    {# Decorative fish idling near the bottom of the rail. #}
+    <div class="sidebar__fish" aria-hidden="true">
+      <svg class="sidebar__fish-svg"><use href="#i-fish"></use></svg>
+      <span class="sidebar__fish-bubble sidebar__fish-bubble--1"></span>
+      <span class="sidebar__fish-bubble sidebar__fish-bubble--2"></span>
+      <span class="sidebar__fish-bubble sidebar__fish-bubble--3"></span>
+    </div>
+
+    <p class="sidebar__sysline">
+      <i class="dot dot--healthy"></i> Aqua-Link: Connected
+    </p>
+
+    <p class="sidebar__motto">
+      <span>Better Water.</span>
+      <span>Healthier Fish.</span>
+      <span>Thriving Tomorrow.</span>
+    </p>
+
+    <div class="sidebar__wave" aria-hidden="true">
+      <svg class="icon"><use href="#i-wave"></use></svg>
+    </div>
+
+    {# Retro collapse toggle - arrow flips with state. #}
+    <button class="sidebar__collapse" type="button" data-sidebar-collapse
+            aria-label="Collapse sidebar" aria-expanded="true">
+      <span data-collapse-glyph>&#9664;</span>
+    </button>
+  </div>
+</aside>

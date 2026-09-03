@@ -1,0 +1,81 @@
+{% comment %}
+  Farm Overview - an aerial-style plan of the site.
+
+  The whole map is drawn with CSS (no image asset), so pond state can be
+  driven straight from data later: only the `pond--{{ status }}` modifier
+  and the label text need to change.
+{% endcomment %}
+<section class="os-window glass--primary panel--farm reveal" style="--reveal-delay: 500ms">
+
+  <header class="os-window__header">
+    <h2 class="os-window__title"><i class="os-window__glyph" aria-hidden="true">&#9672;</i>Farm Overview</h2>
+    <div class="os-window__controls" aria-hidden="true">
+      <button class="os-window__ctl" type="button" tabindex="-1">&minus;</button>
+      <button class="os-window__ctl" type="button" tabindex="-1">&#9633;</button>
+      <button class="os-window__ctl os-window__ctl--close" type="button" tabindex="-1">&times;</button>
+    </div>
+  </header>
+
+  <div class="os-window__body">
+
+
+
+  <header class="panel__head panel__head--tools">
+    <div class="panel__tools">
+      <span class="pill pill--muted">6 ponds &middot; 5.5 ha</span>
+      <a class="btn btn--ghost btn--sm" href="{% url 'dashboard:ponds' %}">
+        View All Ponds
+        <svg class="icon icon--xs"><use href="#i-arrow-right"></use></svg>
+      </a>
+    </div>
+  </header>
+
+  <div class="farm-map">
+    <div class="farm-map__terrain" aria-hidden="true"></div>
+    <div class="farm-map__paths" aria-hidden="true"></div>
+
+    <div class="pond-grid">
+      {% for pond in ponds %}
+        <button class="pond pond--{{ pond.status }}" type="button"
+                data-pond="{{ pond.id }}"
+                aria-label="{{ pond.name }} - {{ pond.status_label }}">
+          <span class="pond__water" aria-hidden="true">
+            <span class="pond__caustic"></span>
+            <span class="pond__glint"></span>
+            <span class="pond__shoal">
+              <i></i><i></i><i></i>
+            </span>
+          </span>
+
+          <span class="pond__label">
+            <i class="dot dot--{{ pond.status }}"></i>
+            <span class="pond__label-text">
+              <strong>{{ pond.name }}</strong>
+              <small>{{ pond.status_label }}</small>
+            </span>
+          </span>
+
+          <span class="pond__readout" aria-hidden="true">
+            <span><em>{{ pond.temp }}&deg;</em>temp</span>
+            <span><em>{{ pond.ph }}</em>pH</span>
+            <span><em>{{ pond.do }}</em>mg/L</span>
+          </span>
+
+          <span class="pond__meta" aria-hidden="true">{{ pond.species }} &middot; {{ pond.area }}</span>
+        </button>
+      {% endfor %}
+    </div>
+
+    <div class="farm-map__legend">
+      <span><i class="dot dot--good"></i>Healthy</span>
+      <span><i class="dot dot--warning"></i>Warning</span>
+      <span><i class="dot dot--critical"></i>Critical</span>
+    </div>
+
+    <div class="farm-map__compass" aria-hidden="true">
+      <span>N</span>
+      <svg class="icon icon--sm"><use href="#i-compass"></use></svg>
+    </div>
+  </div>
+  </div>
+</section>

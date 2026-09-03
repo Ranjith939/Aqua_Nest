@@ -1,0 +1,24 @@
+{% comment %} Four headline metric cards. {% endcomment %}
+<section class="kpi-grid" aria-label="Farm summary">
+  {% for kpi in kpis %}
+    <article class="kpi glass glass--secondary glass--interactive reveal"
+             style="--reveal-delay: {{ forloop.counter0|add:1 }}00ms">
+      <span class="stat-controls" aria-hidden="true">
+        <span class="os-window__ctl">&minus;</span>
+        <span class="os-window__ctl os-window__ctl--close">&times;</span>
+      </span>
+      <span class="kpi__icon status-icon status-icon--{{ kpi.tone }}">
+        <svg class="icon"><use href="#i-{{ kpi.icon }}"></use></svg>
+      </span>
+      <div class="kpi__body">
+        <p class="kpi__label">{{ kpi.label }}</p>
+        <p class="kpi__value"
+           {% if kpi.count_to %}data-count-to="{{ kpi.count_to }}"{% endif %}>{{ kpi.value }}</p>
+        <p class="kpi__caption kpi__caption--{{ kpi.tone }}">
+          <i class="dot dot--{{ kpi.tone }}"></i>{{ kpi.caption }}
+        </p>
+      </div>
+      <span class="kpi__sheen" aria-hidden="true"></span>
+    </article>
+  {% endfor %}
+</section>

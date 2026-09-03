@@ -1,0 +1,447 @@
+/* ==========================================================================
+   AQUA NEST - retro.css
+
+   The 1990s desktop-OS personality: bevelled window frames, glass title
+   bars, pixel iconography, the taskbar and a very light CRT atmosphere.
+
+   This is an *interpretation*, not a Windows 98 clone - no system greys, no
+   MS Sans Serif, and modern typography still carries every real value. The
+   retro layer is chrome around the data, never the data itself.
+
+   Loaded between ocean.css and dashboard.css so dashboard.css keeps the
+   final say on layout.
+   ========================================================================== */
+
+:root {
+  /* Bevel edges, tinted aqua instead of the classic grey. */
+  --bevel-light: rgba(226, 253, 255, 0.55);
+  --bevel-dark: rgba(3, 32, 50, 0.45);
+  --bevel-light-soft: rgba(214, 250, 255, 0.32);
+  --bevel-dark-soft: rgba(3, 30, 48, 0.3);
+
+  --title-bg: linear-gradient(180deg, rgba(52, 168, 196, 0.34) 0%, rgba(20, 90, 120, 0.3) 100%);
+  --title-bg-idle: linear-gradient(180deg, rgba(120, 200, 220, 0.22) 0%, rgba(30, 110, 140, 0.18) 100%);
+
+  /* Title bars and system chrome speak in mono; the pixel face is reserved
+     for the wordmark alone. */
+  --pixel-font: var(--font-pixel, "Pixelify Sans", sans-serif);
+  --taskbar-h: 42px;
+}
+
+/* --------------------------------------------------------------------------
+   OS window
+
+   A real two-row box: header, then body, both in normal flow. The title bar
+   used to be absolutely positioned, which meant every panel had to reserve
+   space for it by hand - the source of the overlaps. Nothing structural is
+   absolutely positioned any more.
+   -------------------------------------------------------------------------- */
+
+.os-window {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+  border-radius: var(--r-md);
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(160%);
+  backdrop-filter: blur(var(--glass-blur)) saturate(160%);
+  border: 1px solid rgba(116, 230, 255, 0.28);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    0 8px 25px rgba(2, 20, 34, 0.2);
+}
+
+/* Header ------------------------------------------------------------------ */
+
+.os-window__header {
+  flex: none;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 0 8px 0 12px;
+  border-bottom: 1px solid rgba(116, 230, 255, 0.22);
+  background: linear-gradient(180deg,
+    rgba(130, 220, 240, 0.16),
+    rgba(20, 80, 100, 0.12));
+}
+
+.os-window__title {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(234, 251, 255, 0.84);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.os-window__glyph {
+  flex: none;
+  font-style: normal;
+  font-size: 11px;
+  line-height: 1;
+  color: rgba(112, 243, 255, 0.8);
+}
+
+/* Window controls --------------------------------------------------------- */
+
+.os-window__controls {
+  display: flex;
+  gap: 4px;
+  flex: none;
+}
+
+.os-window__ctl {
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 16px;
+  border-radius: 2px;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  line-height: 1;
+  color: rgba(224, 248, 255, 0.75);
+  background: linear-gradient(180deg,
+    rgba(180, 240, 255, 0.16),
+    rgba(110, 190, 214, 0.08));
+  border: 1px solid rgba(146, 226, 245, 0.28);
+  transition: background var(--t-fast, 0.22s) ease,
+              color var(--t-fast, 0.22s) ease;
+}
+
+.os-window__ctl:hover {
+  background: linear-gradient(180deg,
+    rgba(206, 248, 255, 0.32),
+    rgba(130, 208, 230, 0.16));
+  color: #fff;
+}
+
+/* Pressed-in look, the way a raised control inverts its bevel. */
+.os-window__ctl:active {
+  background: rgba(8, 46, 68, 0.4);
+  box-shadow: inset 1px 1px 0 rgba(3, 32, 50, 0.5);
+}
+
+.os-window__ctl--close:hover {
+  background: linear-gradient(180deg,
+    rgba(255, 140, 190, 0.42),
+    rgba(214, 74, 130, 0.22));
+  border-color: rgba(255, 150, 195, 0.5);
+}
+
+/* Body -------------------------------------------------------------------- */
+
+.os-window__body {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  padding: clamp(14px, 1.3vw, 18px);
+}
+
+.os-window__body--flush { padding: 0; }
+
+/* Small decorative controls on the statistic cards. */
+.stat-controls {
+  position: absolute;
+  top: 7px;
+  right: 8px;
+  display: flex;
+  gap: 4px;
+  z-index: 2;
+  opacity: 0.5;
+  transition: opacity var(--t-fast, 0.22s) ease;
+}
+
+.kpi:hover .stat-controls { opacity: 1; }
+
+.stat-controls .os-window__ctl { width: 15px; height: 13px; font-size: 8px; }
+
+/* --------------------------------------------------------------------------
+   Retro buttons - raised bevel, pressed on click
+   -------------------------------------------------------------------------- */
+
+.btn,
+.action-btn,
+.segmented__btn,
+.chip--button,
+.task-btn {
+  /* Rounded rectangles, not pills - these are OS controls. */
+  border-radius: 6px;
+}
+
+.btn--primary,
+.btn--ghost {
+  box-shadow:
+    inset 1px 1px 0 rgba(255, 255, 255, 0.5),
+    inset -1px -1px 0 rgba(3, 32, 50, 0.3),
+    0 8px 22px rgba(2, 24, 40, 0.26);
+}
+
+.btn--primary:hover,
+.btn--ghost:hover {
+  box-shadow:
+    inset 1px 1px 0 rgba(255, 255, 255, 0.6),
+    inset -1px -1px 0 rgba(3, 32, 50, 0.28),
+    0 12px 28px rgba(2, 24, 40, 0.3),
+    0 0 22px rgba(57, 217, 210, 0.3);
+}
+
+/* Button visually presses inward. */
+.btn:active,
+.action-btn:active {
+  transform: translate(1px, 1px);
+  box-shadow:
+    inset -1px -1px 0 rgba(255, 255, 255, 0.34),
+    inset 1px 1px 0 rgba(3, 32, 50, 0.42);
+}
+
+.action-btn {
+  box-shadow:
+    inset 1px 1px 0 rgba(255, 255, 255, 0.3),
+    inset -1px -1px 0 rgba(3, 32, 50, 0.24);
+}
+
+/* --------------------------------------------------------------------------
+   Pixel iconography
+   -------------------------------------------------------------------------- */
+
+.pixel-icon {
+  width: 16px;
+  height: 16px;
+  flex: none;
+  display: block;
+  image-rendering: pixelated;
+  shape-rendering: crispEdges;
+}
+
+.pixel-icon--lg { width: 20px; height: 20px; }
+
+/* Small retro system labels. Decorative text only - never a real value. */
+.os-label {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-3, rgba(159, 195, 207, 1));
+}
+
+.os-label--accent { color: var(--aqua, #39d9d2); }
+
+/* The one place the pixel face is allowed outside the sidebar wordmark. */
+.os-label--pixel {
+  font-family: var(--font-pixel);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: none;
+}
+
+/* --------------------------------------------------------------------------
+   Taskbar
+   -------------------------------------------------------------------------- */
+
+.taskbar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 30;
+  height: var(--taskbar-h);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 10px;
+  background: linear-gradient(180deg, rgba(24, 106, 138, 0.5) 0%, rgba(8, 56, 82, 0.55) 100%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  backdrop-filter: blur(20px) saturate(160%);
+  box-shadow:
+    inset 0 1px 0 rgba(226, 253, 255, 0.4),
+    inset 0 -1px 0 rgba(3, 32, 50, 0.4),
+    0 -6px 24px rgba(2, 20, 34, 0.3);
+  border-top: 1px solid rgba(180, 240, 255, 0.24);
+}
+
+.taskbar__start {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 13px;
+  border-radius: 7px;
+  font-family: var(--font-pixel);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  color: #f0feff;
+  background: linear-gradient(180deg, rgba(57, 217, 210, 0.4), rgba(27, 140, 166, 0.3));
+  box-shadow:
+    inset 1px 1px 0 rgba(255, 255, 255, 0.5),
+    inset -1px -1px 0 rgba(3, 32, 50, 0.4);
+  transition: background var(--t-fast, 0.22s) ease, transform var(--t-fast, 0.22s) ease;
+}
+
+.taskbar__start:hover {
+  background: linear-gradient(180deg, rgba(150, 244, 236, 0.52), rgba(40, 168, 194, 0.38));
+}
+
+.taskbar__start:active {
+  transform: translate(1px, 1px);
+  box-shadow:
+    inset -1px -1px 0 rgba(255, 255, 255, 0.34),
+    inset 1px 1px 0 rgba(3, 32, 50, 0.46);
+}
+
+.taskbar__divider {
+  width: 2px;
+  height: 22px;
+  flex: none;
+  border-radius: 1px;
+  background: linear-gradient(90deg, rgba(3, 32, 50, 0.34), rgba(226, 253, 255, 0.3));
+}
+
+.taskbar__tasks {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.task-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 12px;
+  max-width: 170px;
+  font-family: var(--font-ui);
+  font-size: 11.5px;
+  font-weight: 500;
+  color: rgba(226, 249, 255, 0.86);
+  background: rgba(255, 255, 255, 0.07);
+  box-shadow:
+    inset 1px 1px 0 rgba(255, 255, 255, 0.28),
+    inset -1px -1px 0 rgba(3, 32, 50, 0.26);
+  transition: background var(--t-fast, 0.22s) ease, color var(--t-fast, 0.22s) ease;
+}
+
+.task-btn span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.task-btn:hover { background: rgba(255, 255, 255, 0.14); color: #fff; }
+
+/* The active task reads as pushed in, like a focused window button. */
+.task-btn.is-active {
+  color: #fff;
+  background: rgba(57, 217, 210, 0.18);
+  box-shadow:
+    inset -1px -1px 0 rgba(255, 255, 255, 0.26),
+    inset 1px 1px 0 rgba(3, 32, 50, 0.42);
+}
+
+.taskbar__tray {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: none;
+  padding: 5px 12px;
+  border-radius: 7px;
+  background: rgba(3, 40, 60, 0.28);
+  box-shadow:
+    inset -1px -1px 0 rgba(255, 255, 255, 0.22),
+    inset 1px 1px 0 rgba(3, 32, 50, 0.38);
+}
+
+.tray__status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  /* Bioluminescent green is reserved for a healthy link. */
+  color: var(--seaweed-green, #4ee39a);
+}
+
+.tray__icons { display: inline-flex; gap: 8px; color: rgba(200, 244, 255, 0.66); }
+
+.tray__clock {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: var(--ink-2, #c8e4ee);
+  font-variant-numeric: tabular-nums;
+  min-width: 62px;
+  text-align: right;
+}
+
+/* --------------------------------------------------------------------------
+   CRT atmosphere
+   Scanlines at a few percent opacity plus a faint phosphor bloom. No
+   curvature, no text distortion - the dashboard has to stay sharp.
+   -------------------------------------------------------------------------- */
+
+.crt {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+  opacity: 0.5;
+  background-image:
+    repeating-linear-gradient(
+      to bottom,
+      rgba(6, 40, 61, 0.055) 0px,
+      rgba(6, 40, 61, 0.055) 1px,
+      transparent 1px,
+      transparent 3px),
+    radial-gradient(130% 100% at 50% 50%, transparent 62%, rgba(3, 26, 42, 0.16) 100%);
+}
+
+/* A very slow phosphor shimmer across the glass. */
+.crt::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, rgba(160, 240, 255, 0.05), transparent 22%);
+  animation: crt-roll 9s linear infinite;
+}
+
+@keyframes crt-roll {
+  from { transform: translateY(-24%); }
+  to { transform: translateY(124%); }
+}
+
+/* --------------------------------------------------------------------------
+   Responsive + motion preferences
+   -------------------------------------------------------------------------- */
+
+@media (max-width: 900px) {
+  .taskbar__tasks .task-btn span { display: none; }
+  .task-btn { padding: 6px 9px; }
+  .tray__icons { display: none; }
+}
+
+@media (max-width: 560px) {
+  .taskbar__start span { display: none; }
+  .taskbar__start { padding: 6px 9px; }
+  .tray__status { display: none; }
+  .os-window__title { font-size: 9.5px; letter-spacing: 0.08em; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .crt::after { animation: none; }
+}

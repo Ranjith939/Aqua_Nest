@@ -1,0 +1,28 @@
+{% comment %} Wide quick-actions bar closing the page. {% endcomment %}
+<section class="panel glass glass--secondary panel--actions reveal" style="--reveal-delay: 900ms">
+
+  <div class="actions__head">
+    <span class="actions__icon">
+      <svg class="icon"><use href="#i-bolt"></use></svg>
+    </span>
+    <div>
+      <h2 class="panel__title panel__title--tight">Quick Actions</h2>
+      <p class="actions__sub">Jump straight into the daily routine</p>
+    </div>
+  </div>
+
+  <div class="actions__grid">
+    {% for action in quick_actions %}
+      <button class="action-btn" type="button" data-action="{{ action.key }}">
+        <span class="action-btn__icon">
+          <svg class="icon"><use href="#i-{{ action.icon }}"></use></svg>
+        </span>
+        <span class="action-btn__text">
+          <strong>{{ action.label }}</strong>
+          <small>{{ action.caption }}</small>
+        </span>
+        <svg class="icon icon--xs action-btn__chev"><use href="#i-arrow-right"></use></svg>
+      </button>
+    {% endfor %}
+  </div>
+</section>

@@ -1,0 +1,61 @@
+{% comment %} Recent alerts + a compact device-health strip. {% endcomment %}
+<section class="os-window glass--primary panel--alerts reveal" style="--reveal-delay: 600ms">
+
+  <header class="os-window__header">
+    <h2 class="os-window__title"><i class="os-window__glyph" aria-hidden="true">&#9673;</i>Recent Alerts</h2>
+    <div class="os-window__controls" aria-hidden="true">
+      <button class="os-window__ctl" type="button" tabindex="-1">&minus;</button>
+      <button class="os-window__ctl" type="button" tabindex="-1">&#9633;</button>
+      <button class="os-window__ctl os-window__ctl--close" type="button" tabindex="-1">&times;</button>
+    </div>
+  </header>
+
+  <div class="os-window__body">
+
+
+
+  <header class="panel__head panel__head--tools">
+    <a class="panel__link" href="{% url 'dashboard:intelligence' %}">
+      View all <svg class="icon icon--xs"><use href="#i-chevron-right"></use></svg>
+    </a>
+  </header>
+
+  <ul class="alert-list">
+    {% for alert in alerts %}
+      <li>
+        <a class="alert-row alert-row--{{ alert.level }}" href="{% url 'dashboard:intelligence' %}">
+          <span class="status-icon status-icon--{{ alert.level }}">
+            <svg class="icon icon--sm"><use href="#i-{{ alert.icon }}"></use></svg>
+          </span>
+          <span class="alert-row__body">
+            <span class="alert-row__top">
+              <strong>{{ alert.pond }}</strong>
+              <span class="alert-row__time">{{ alert.time }}</span>
+            </span>
+            <span class="alert-row__title">{{ alert.title }}</span>
+            <span class="alert-row__detail">{{ alert.detail }}</span>
+          </span>
+          <svg class="icon icon--xs alert-row__chev"><use href="#i-chevron-right"></use></svg>
+        </a>
+      </li>
+    {% endfor %}
+  </ul>
+
+  <div class="health-strip">
+    <p class="health-strip__title">
+      <span aria-hidden="true">&#9636;</span> Aqua Core Status
+    </p>
+    {% for metric in device_health %}
+      <div class="meter">
+        <div class="meter__top">
+          <span>{{ metric.label }}</span>
+          <strong>{{ metric.value }}</strong>
+        </div>
+        <div class="meter__track">
+          <span class="meter__fill meter__fill--{{ metric.tone }}" style="--meter: {{ metric.pct }}%"></span>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+  </div>
+</section>

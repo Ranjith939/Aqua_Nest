@@ -1,0 +1,71 @@
+{% comment %}
+  The Living Digital Twin - the hero of the Ponds page.
+
+  It shows the CONDITION OF THE POND, not the AQUA NEST hardware: no sensors,
+  probes, wires or device markers appear inside the water. The canvas is drawn
+  procedurally by pond-twin.js from the interpreted state object alone.
+{% endcomment %}
+<section class="os-window glass--primary twin-window reveal" style="--reveal-delay: 0ms">
+
+  <header class="os-window__header">
+    <h2 class="os-window__title">
+      <i class="os-window__glyph" aria-hidden="true">&#9672;</i>Living Digital Twin
+    </h2>
+    <div class="os-window__controls" aria-hidden="true">
+      <button class="os-window__ctl" type="button" tabindex="-1">&minus;</button>
+      <button class="os-window__ctl" type="button" tabindex="-1">&#9633;</button>
+      <button class="os-window__ctl os-window__ctl--close" type="button" tabindex="-1">&times;</button>
+    </div>
+  </header>
+
+  <div class="os-window__body twin-body">
+
+    {# Pond selector + the state the twin is currently rendering. #}
+    <div class="twin-bar">
+      <div class="segmented twin-ponds" data-pond-picker>
+        {% for id in pond_ids %}
+          <button class="segmented__btn{% if id == selected_pond %} is-active{% endif %}"
+                  type="button" data-pond-select="{{ id }}">{{ id }}</button>
+        {% endfor %}
+      </div>
+
+      <span class="twin-state" data-twin-badge>
+        <i class="dot dot--healthy" data-twin-dot></i>
+        <span data-twin-state-label>{{ pond.state.pondState }}</span>
+      </span>
+
+      <span class="pill pill--muted twin-demo" title="No backend is connected yet - these readings are simulated.">
+        Simulated
+      </span>
+    </div>
+
+    {% comment %}
+      The pond itself. Canvas is sized by CSS; the script matches the
+      backing store to devicePixelRatio so it never renders soft.
+    {% endcomment %}
+    <div class="twin-stage" data-twin-stage>
+      <canvas class="twin-canvas" data-pond-twin
+              role="img"
+              aria-label="Visual simulation of the selected pond's condition"></canvas>
+
+      {% comment %}
+        Read-outs that belong to the water, kept out of the canvas so they
+        stay selectable text rather than pixels.
+      {% endcomment %}
+      <div class="twin-overlay">
+        <span class="twin-tag twin-tag--level">
+          <em data-twin-level>{{ pond.state.waterLevelPercent }}</em>% level
+        </span>
+        <span class="twin-tag twin-tag--aer" data-twin-aer hidden>
+          <i class="dot dot--info"></i> Aeration active
+        </span>
+      </div>
+    </div>
+
+    <p class="twin-legend">
+      The twin reflects the pond's interpreted condition &mdash; water clarity,
+      level, surface movement and fish behaviour. It is not a view of the
+      AQUA&nbsp;NEST hardware.
+    </p>
+  </div>
+</section>

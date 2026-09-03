@@ -1,0 +1,42 @@
+{% comment %}
+  AQUA NEST OS taskbar - a glass reinterpretation of a 1990s desktop bar,
+  floating above the coral reef at the bottom of the viewport.
+  Decorative shell only: the task buttons link to the real routes.
+{% endcomment %}
+<div class="taskbar" role="navigation" aria-label="System bar">
+
+  <a class="taskbar__start" href="{% url 'dashboard:ponds' %}">
+    <svg class="pixel-icon"><use href="#p-fish"></use></svg>
+    <span>AQUA NEST</span>
+  </a>
+
+  <span class="taskbar__divider" aria-hidden="true"></span>
+
+  <div class="taskbar__tasks">
+    <a class="task-btn{% if active == 'ponds' %} is-active{% endif %}" href="{% url 'dashboard:ponds' %}">
+      <svg class="pixel-icon"><use href="#p-ponds"></use></svg>
+      <span>Ponds</span>
+    </a>
+    <a class="task-btn{% if active == 'intelligence' %} is-active{% endif %}" href="{% url 'dashboard:intelligence' %}">
+      <svg class="pixel-icon"><use href="#p-intelligence"></use></svg>
+      <span>Intelligence</span>
+    </a>
+    <a class="task-btn{% if active == 'control' %} is-active{% endif %}" href="{% url 'dashboard:control' %}">
+      <svg class="pixel-icon"><use href="#p-control"></use></svg>
+      <span>Control</span>
+    </a>
+    <a class="task-btn{% if active == 'nest' %} is-active{% endif %}" href="{% url 'dashboard:nest' %}">
+      <svg class="pixel-icon"><use href="#p-nest"></use></svg>
+      <span>Nest</span>
+    </a>
+  </div>
+
+  <div class="taskbar__tray">
+    <span class="tray__status"><i class="dot dot--healthy"></i>ONLINE</span>
+    <span class="tray__icons" aria-hidden="true">
+      <svg class="icon icon--sm"><use href="#i-globe"></use></svg>
+      <svg class="icon icon--sm"><use href="#i-volume"></use></svg>
+    </span>
+    <span class="tray__clock" data-clock-time>--:--</span>
+  </div>
+</div>

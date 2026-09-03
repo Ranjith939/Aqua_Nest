@@ -1,0 +1,99 @@
+{% load static asset_tags %}<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#06283D">
+  <meta name="description" content="AQUA NEST OS - an intelligent aquaculture monitoring platform for healthier water and thriving fish.">
+  <title>{% block title %}AQUA NEST OS{% endblock %}</title>
+
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='88'%3E%F0%9F%90%9F%3C/text%3E%3C/svg%3E">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  {% comment %}
+    Three-level type system:
+      Space Grotesk  - all primary interface text
+      IBM Plex Mono  - system labels, title bars, telemetry, timestamps
+      Pixelify Sans  - the OS wordmark and version only
+  {% endcomment %}
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Pixelify+Sans:wght@400;500;600;700&display=swap">
+
+  <link rel="stylesheet" href="{% static_v 'dashboard/css/ocean.css' %}">
+  <link rel="stylesheet" href="{% static_v 'dashboard/css/retro.css' %}">
+  <link rel="stylesheet" href="{% static_v 'dashboard/css/dashboard.css' %}">
+  {% block extra_css %}{% endblock %}
+</head>
+
+<body class="app-body" data-page="{{ active }}">
+
+  {% include "partials/icons.html" %}
+  {% include "partials/ocean.html" %}
+
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+
+  <div class="app-shell">
+    {% include "dashboard/partials/sidebar.html" %}
+
+    <div class="app-column">
+      {% include "dashboard/partials/topnav.html" %}
+
+      <main class="app-content" id="main-content">
+        {% block content %}{% endblock %}
+      </main>
+
+      <footer class="app-footer">
+        <span class="app-footer__mark">
+          <svg class="icon icon--sm"><use href="#i-wave"></use></svg>
+          AQUA NEST OS
+        </span>
+        <span>Aquaculture Intelligence Platform &middot; UI preview build</span>
+        <span class="app-footer__credit">
+          Reef by
+          <a href="https://sketchfab.com/3d-models/chaotic-marine-life-f71c1d4658924489b9e85f033236eeda"
+             target="_blank" rel="noopener noreferrer">Kanisto</a>
+          &middot; CC&nbsp;BY-NC&nbsp;4.0
+          &nbsp;|&nbsp;
+          Clownfish by
+          <a href="https://sketchfab.com/3d-models/cartoon-clownfish-animated-ac8e67efb08c499eadfdb6179f955bcc"
+             target="_blank" rel="noopener noreferrer">Jungle Jim</a>
+          &middot; CC&nbsp;BY&nbsp;4.0
+          &nbsp;|&nbsp;
+          Goldfish by
+          <a href="https://sketchfab.com/3d-models/tosakin-goldfish-b2f0681c1e2145bcb0289f03ed75ea37"
+             target="_blank" rel="noopener noreferrer">somitsu</a>
+          &middot; CC&nbsp;BY&nbsp;4.0
+        </span>
+        <span class="app-footer__status">
+          <i class="dot dot--healthy"></i> AQUA-LINK: CONNECTED
+        </span>
+      </footer>
+    </div>
+  </div>
+
+  {% include "partials/taskbar.html" %}
+
+  <div class="sidebar-scrim" data-sidebar-scrim hidden></div>
+
+  {# Very light CRT atmosphere: scanlines + phosphor bloom, no distortion. #}
+  <div class="crt" aria-hidden="true"></div>
+
+  {# Three.js is vendored locally so the 3D reef works offline. #}
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "{% static_v 'dashboard/vendor/three.module.js' %}",
+      "three/addons/loaders/GLTFLoader.js": "{% static_v 'dashboard/vendor/GLTFLoader.js' %}",
+      "three/addons/utils/SkeletonUtils.js": "{% static_v 'dashboard/vendor/SkeletonUtils.js' %}",
+      "three/addons/utils/BufferGeometryUtils.js": "{% static_v 'dashboard/vendor/BufferGeometryUtils.js' %}"
+    }
+  }
+  </script>
+  <script type="module" src="{% static_v 'dashboard/js/reef3d.js' %}"></script>
+
+  <script src="{% static_v 'dashboard/js/ocean.js' %}" defer></script>
+  <script src="{% static_v 'dashboard/js/dashboard.js' %}" defer></script>
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,38 @@
+{% comment %}
+  Contextual actuator status only. The controls themselves live in CONTROL -
+  this panel just says what the equipment is currently doing.
+{% endcomment %}
+<section class="os-window glass--secondary actuator-window reveal" style="--reveal-delay: 400ms">
+
+  <header class="os-window__header">
+    <h2 class="os-window__title">
+      <i class="os-window__glyph" aria-hidden="true">&#9635;</i>Equipment
+    </h2>
+    <a class="panel__link" href="{% url 'dashboard:control' %}">
+      Control <svg class="icon icon--xs"><use href="#i-chevron-right"></use></svg>
+    </a>
+  </header>
+
+  <div class="os-window__body">
+    <ul class="actuator-list">
+      <li class="actuator-row" data-actuator="aeration">
+        <span class="actuator-row__name">Aeration</span>
+        <span class="actuator-row__state" data-actuator-state>
+          <i class="dot dot--healthy"></i><span data-actuator-value>{{ pond.actuators.aeration }}</span>
+        </span>
+      </li>
+      <li class="actuator-row" data-actuator="pump">
+        <span class="actuator-row__name">Pump</span>
+        <span class="actuator-row__state" data-actuator-state>
+          <i class="dot dot--healthy"></i><span data-actuator-value>{{ pond.actuators.pump }}</span>
+        </span>
+      </li>
+      <li class="actuator-row" data-actuator="feeder">
+        <span class="actuator-row__name">Feeder</span>
+        <span class="actuator-row__state actuator-row__state--text">
+          Next <span data-actuator-value>{{ pond.actuators.feeder }}</span>
+        </span>
+      </li>
+    </ul>
+  </div>
+</section>

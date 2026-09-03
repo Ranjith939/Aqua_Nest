@@ -1,0 +1,36 @@
+{% comment %} Recent activity timeline. {% endcomment %}
+<section class="os-window glass--secondary panel--activity reveal" style="--reveal-delay: 800ms">
+
+  <header class="os-window__header">
+    <h2 class="os-window__title"><i class="os-window__glyph" aria-hidden="true">&#9678;</i>Recent Activity</h2>
+    <div class="os-window__controls" aria-hidden="true">
+      <button class="os-window__ctl" type="button" tabindex="-1">&minus;</button>
+      <button class="os-window__ctl" type="button" tabindex="-1">&#9633;</button>
+      <button class="os-window__ctl os-window__ctl--close" type="button" tabindex="-1">&times;</button>
+    </div>
+  </header>
+
+  <div class="os-window__body">
+
+
+
+  <header class="panel__head panel__head--tools">
+    <span class="pill pill--muted">Today</span>
+  </header>
+
+  <ol class="timeline">
+    {% for entry in activity %}
+      <li class="timeline__item">
+        <span class="timeline__marker status-icon status-icon--{{ entry.tone }} status-icon--sm">
+          <svg class="icon icon--sm"><use href="#i-{{ entry.icon }}"></use></svg>
+        </span>
+        <div class="timeline__body">
+          <p class="timeline__title">{{ entry.title }}</p>
+          <p class="timeline__detail">{{ entry.detail }}</p>
+        </div>
+        <span class="timeline__time">{{ entry.time }}</span>
+      </li>
+    {% endfor %}
+  </ol>
+  </div>
+</section>

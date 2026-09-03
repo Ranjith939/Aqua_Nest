@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block title %}{{ page_title }} &middot; AQUA NEST{% endblock %}
+
+{% block content %}
+  <section class="panel glass panel--placeholder reveal">
+    <span class="placeholder__badge">Next milestone</span>
+    <h1 class="placeholder__title">{{ page_title }}</h1>
+    <p class="placeholder__blurb">{{ blurb }}</p>
+    <p class="placeholder__note">
+      This screen is not built yet - the current milestone covers the
+      dashboard interface only.
+    </p>
+    <a class="btn btn--primary" href="{% url 'dashboard:ponds' %}">
+      <svg class="icon icon--sm"><use href="#i-home"></use></svg>
+      Back to dashboard
+    </a>
+    <svg class="placeholder__fish"><use href="#i-fish"></use></svg>
+  </section>
+{% endblock %}

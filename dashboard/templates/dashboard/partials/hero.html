@@ -1,0 +1,88 @@
+{% comment %} Welcome hero: greeting window on the left, date & weather window on the right. {% endcomment %}
+<section class="hero reveal" style="--reveal-delay: 0ms">
+
+  <div class="hero__main os-window glass--primary">
+
+    <header class="os-window__header">
+      <span class="os-window__title"><i class="os-window__glyph" aria-hidden="true">&#9635;</i>Aqua Nest OS &mdash; Main Dashboard</span>
+      <div class="os-window__controls" aria-hidden="true">
+        <button class="os-window__ctl" type="button" tabindex="-1">&minus;</button>
+        <button class="os-window__ctl" type="button" tabindex="-1">&#9633;</button>
+        <button class="os-window__ctl os-window__ctl--close" type="button" tabindex="-1">&times;</button>
+      </div>
+    </header>
+
+    <div class="os-window__body">
+      <div class="hero__copy">
+        <p class="hero__eyebrow">
+          <i class="dot dot--healthy"></i> Live Water Telemetry
+          <em>&middot; last sync 2 min ago</em>
+        </p>
+        <h1 class="hero__title">
+          {{ greeting }},
+          <span class="hero__name">{{ farm_user.name }} <span class="hero__wave-emoji">&#128075;</span></span>
+        </h1>
+        <p class="hero__lede">
+          Your farm is operating normally.<br>
+          Let&rsquo;s keep your fish healthy.
+        </p>
+        <div class="hero__actions">
+          <a class="btn btn--primary" href="{% url 'dashboard:ponds' %}">
+            <svg class="icon icon--sm"><use href="#i-compass"></use></svg>
+            Inspect ponds
+          </a>
+          <a class="btn btn--ghost" href="{% url 'dashboard:intelligence' %}">
+            <svg class="icon icon--sm"><use href="#i-pulse"></use></svg>
+            Today&rsquo;s readings
+          </a>
+        </div>
+      </div>
+
+      {# Its own grid column, so it can never encroach on the copy. #}
+      <div class="hero__art" aria-hidden="true">
+        <div class="hero__orb"></div>
+        {# Real model when WebGL is available; the SVG is the fallback. #}
+        <canvas class="hero__fish3d" data-hero-fish></canvas>
+        <svg class="hero__fish"><use href="#i-fish"></use></svg>
+        <span class="hero__bubble hero__bubble--1"></span>
+        <span class="hero__bubble hero__bubble--2"></span>
+        <span class="hero__bubble hero__bubble--3"></span>
+        <span class="hero__bubble hero__bubble--4"></span>
+        <p class="hero__quote">&ldquo;Clean Water.<br>Happy Fish.&rdquo;</p>
+      </div>
+    </div>
+  </div>
+
+  <aside class="hero__side os-window glass--secondary">
+
+    <header class="os-window__header">
+      <span class="os-window__title"><i class="os-window__glyph" aria-hidden="true">&#9645;</i>Date &amp; Weather</span>
+      <div class="os-window__controls" aria-hidden="true">
+        <button class="os-window__ctl" type="button" tabindex="-1">&minus;</button>
+        <button class="os-window__ctl" type="button" tabindex="-1">&#9633;</button>
+        <button class="os-window__ctl os-window__ctl--close" type="button" tabindex="-1">&times;</button>
+      </div>
+    </header>
+
+    <div class="os-window__body">
+      <div class="clock">
+        <p class="clock__date" data-clock-date>{{ now|date:"D, j F Y" }}</p>
+        <p class="clock__time" data-clock-time>{{ now|date:"h:i A" }}</p>
+      </div>
+
+      <div class="clock__weather">
+        <svg class="icon weather__icon weather__icon--lg"><use href="#i-{{ weather.icon }}"></use></svg>
+        <div>
+          <strong>{{ weather.temp }}&deg;C</strong>
+          <small>{{ weather.condition }}</small>
+        </div>
+      </div>
+
+      <dl class="mini-stats">
+        <div><dt>Humidity</dt><dd>{{ weather.humidity }}</dd></div>
+        <div><dt>Water temp</dt><dd>27.4&deg;C</dd></div>
+        <div><dt>Tide</dt><dd>Rising</dd></div>
+      </dl>
+    </div>
+  </aside>
+</section>
