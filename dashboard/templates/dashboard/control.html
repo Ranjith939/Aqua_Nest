@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+
+{% block title %}Control &middot; AQUA NEST OS{% endblock %}
+
+{% block content %}
+  {% comment %}
+    CONTROL - the only page that changes anything.
+
+    Every switch is a real form POST, not a JS fetch: one button, one command,
+    one page reload showing what actually happened. Nothing here optimistically
+    animates into a state the equipment has not confirmed.
+  {% endcomment %}
+
+  <section class="os-window glass--primary control-window reveal" style="--reveal-delay: 0ms">
+
+    <header class="os-window__header">
+      <h2 class="os-window__title">
+        <i class="os-window__glyph" aria-hidden="true">&#9635;</i>Control &mdash; {{ pond.name }}
+      </h2>
+      <div class="os-window__controls" aria-hidden="true">
+        <button class="os-window__ctl" type="button" tabindex="-1">&minus;</button>
+        <button class="os-window__ctl" type="button" tabindex="-1">&#9633;</button>
+        <button class="os-window__ctl os-window__ctl--close" type="button" tabindex="-1">&times;</button>
+      </div>
+    </header>
+
+    <div class="os-window__body control-body">
+
+      {# Pond picker. Plain links, so each pond's control panel is bookmarkable. #}
+      <div class="control-bar">
+        <div class="segmented control-ponds">
+          {% for id in pond_ids %}
+            <a class="segmented__btn{% if id == selected_pond %} is-active{% endif %}"
+               href="?pond={{ id }}">{{ id }}</a>
+          {% endfor %}
+        </div>
+
+        <span class="control-state">
+          <i class="dot dot--{{ pond.health.tone|default:'healthy' }}"></i>
+          {{ pond.state.pondState }} &middot; O&#8322; {{ pond.state.oxygenState }}
+        </span>
+
+        <span class="pill pill--muted" title="No controller is connected yet - switching a device changes this dashboard only.">
+          Not wired to hardware
+        </span>
+      </div>
+
+      {% if messages %}
+        <ul class="control-messages">
+          {% for message in messages %}
+            <li class="control-message control-message--{{ message.tags }}">
+              <svg class="icon icon--sm"><use href="#i-{% if message.tags == 'error' %}alert-triangle{% else %}check{% endif %}"></use></svg>
+              {{ message }}
+            </li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+
+      <div class="control-grid">
+        {% for device in devices %}
+          <article class="device{% if device.on %} device--on{% endif %}">
+
+            <div class="device__head">
+              <span class="device__icon">
+                <svg class="icon"><use href="#i-{{ device.icon }}"></use></svg>
+              </span>
+              <div class="device__id">
+                <h3 class="device__name">{{ device.label }}</h3>
+                <p class="device__detail">{{ device.detail }}</p>
+              </div>
+            </div>
+
+            <p class="device__state">
+              <i class="dot dot--{% if device.on %}healthy{% else %}muted{% endif %}"></i>
+              <span>{{ device.state }}</span>
+            </p>
+
+            {% comment %}
+              The button posts the state it wants, never "toggle". A stale page
+              or a double-tap therefore cannot flip a pump the opposite way to
+              what the operator saw when they pressed it.
+            {% endcomment %}
+            <form method="post" class="device__form">
+              {% csrf_token %}
+              <input type="hidden" name="pond" value="{{ selected_pond }}">
+              <input type="hidden" name="device" value="{{ device.key }}">
+              <input type="hidden" name="state" value="{% if device.on %}off{% else %}on{% endif %}">
+              <button class="switch{% if device.on %} switch--on{% endif %}"
+                      type="submit"
+                      aria-label="Turn {{ device.label }} {% if device.on %}off{% else %}on{% endif %}">
+                <span class="switch__track"><span class="switch__knob"></span></span>
+                <span class="switch__label">Turn {% if device.on %}off{% else %}on{% endif %}</span>
+              </button>
+            </form>
+          </article>
+        {% endfor %}
+
+        {% comment %} The feeder runs on a schedule, so it is shown, not switched. {% endcomment %}
+        <article class="device device--readonly">
+          <div class="device__head">
+            <span class="device__icon">
+              <svg class="icon"><use href="#i-gear"></use></svg>
+            </span>
+            <div class="device__id">
+              <h3 class="device__name">Feeder</h3>
+              <p class="device__detail">Runs on a schedule, not a switch</p>
+            </div>
+          </div>
+          <p class="device__state">
+            <i class="dot dot--info"></i><span>Next {{ feeder }}</span>
+          </p>
+          <p class="device__note">Scheduling arrives with the controller.</p>
+        </article>
+      </div>
+
+      <p class="control-foot">
+        <svg class="icon icon--sm"><use href="#i-info"></use></svg>
+        The aerator cannot be switched off while a pond is oxygen-critical.
+        Every other device is free to switch.
+      </p>
+    </div>
+  </section>
+{% endblock %}

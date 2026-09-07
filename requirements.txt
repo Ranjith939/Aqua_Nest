@@ -1,1 +1,6 @@
-Django==5.2.16
+Django>=5.2,<6.0
+# Reads SECRET_KEY/DEBUG/etc from the environment or a local .env file.
+python-decouple
+# Serves collected static files from the WSGI process — no nginx static config.
+whitenoise
+gunicorn

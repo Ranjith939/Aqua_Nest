@@ -17,8 +17,9 @@
    14. Activity timeline
    15. Quick actions
    16. Placeholder page
-   17. Responsive
-   18. Motion preferences & print
+   17. Control page
+   18. Responsive
+   19. Motion preferences & print
    ========================================================================== */
 
 /* --------------------------------------------------------------------------
@@ -2528,8 +2529,171 @@ button {
   .toast { max-width: none; }
 }
 
+
 /* --------------------------------------------------------------------------
-   17. Responsive
+   17. Control page
+   -------------------------------------------------------------------------- */
+
+.control-window { max-width: var(--shell-max); margin: 0 auto; }
+
+.control-body { display: flex; flex-direction: column; gap: 18px; }
+
+.control-bar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.control-ponds .segmented__btn { text-decoration: none; }
+
+.control-state {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  text-shadow: var(--label-shadow);
+}
+
+/* Command feedback. One line, above the grid, gone on the next action. */
+.control-messages { display: flex; flex-direction: column; gap: 8px; }
+
+.control-message {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 10px 13px;
+  border-radius: var(--r-sm);
+  font-size: 13px;
+  color: var(--ink);
+  background: rgba(78, 227, 154, 0.14);
+  border: 1px solid rgba(78, 227, 154, 0.34);
+}
+
+.control-message--error {
+  background: rgba(255, 111, 174, 0.16);
+  border-color: rgba(255, 111, 174, 0.4);
+}
+
+.control-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(232px, 1fr));
+  gap: 14px;
+}
+
+.device {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 16px;
+  border-radius: var(--r-md);
+  background: rgba(255, 255, 255, 0.045);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  transition: border-color var(--t-fast) var(--ease), background var(--t-fast) var(--ease);
+}
+
+/* Running equipment is lit from within - the same green that means healthy
+   everywhere else, so no new colour has to be learned. */
+.device--on {
+  background: rgba(78, 227, 154, 0.09);
+  border-color: rgba(78, 227, 154, 0.32);
+}
+
+.device__head { display: flex; align-items: flex-start; gap: 11px; }
+
+.device__icon {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  color: var(--ink-2);
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid var(--glass-border-soft);
+}
+
+.device--on .device__icon { color: var(--healthy); }
+
+.device__id { min-width: 0; }
+
+.device__name { font-size: 15px; font-weight: 700; color: var(--ink); }
+
+.device__detail { margin-top: 2px; font-size: 12px; color: var(--ink-quiet); }
+
+.device__state {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  color: var(--ink-2);
+}
+
+.device__note { font-size: 11.5px; color: var(--ink-quiet); }
+
+.device__form { margin-top: auto; }
+
+/* The switch is a submit button, not a checkbox: it commands, and the page
+   that comes back is the answer. The track is decoration on top of it. */
+.switch {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  width: 100%;
+  padding: 9px 12px;
+  border-radius: var(--r-sm);
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--ink-2);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--glass-border-soft);
+  cursor: pointer;
+  transition: background var(--t-fast) var(--ease), color var(--t-fast) var(--ease);
+}
+
+.switch:hover { background: rgba(255, 255, 255, 0.12); color: #fff; }
+
+.switch__track {
+  position: relative;
+  flex: 0 0 auto;
+  width: 38px;
+  height: 20px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.16);
+  transition: background var(--t-fast) var(--ease);
+}
+
+.switch__knob {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--ink-3);
+  transition: transform var(--t-fast) var(--ease), background var(--t-fast) var(--ease);
+}
+
+.switch--on .switch__track { background: rgba(78, 227, 154, 0.5); }
+.switch--on .switch__knob { transform: translateX(18px); background: var(--healthy); }
+
+.control-foot {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--ink-quiet);
+}
+
+/* --------------------------------------------------------------------------
+   18. Responsive
    -------------------------------------------------------------------------- */
 
 @media (max-width: 1380px) {
@@ -2634,7 +2798,7 @@ button {
 }
 
 /* --------------------------------------------------------------------------
-   18. Motion preferences & print
+   19. Motion preferences & print
    -------------------------------------------------------------------------- */
 
 @media (prefers-reduced-motion: reduce) {

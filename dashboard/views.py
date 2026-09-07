@@ -11,10 +11,11 @@ are the contract the templates are written against, so the HTML will not
 need to change.
 """
 
-from datetime import datetime
-
-from django.http import Http404
-from django.shortcuts import render
+from django.contrib import messages
+from django.http import Http404, HttpResponseBadRequest
+from django.shortcuts import redirect, render
+from django.urls import reverse
+from django.utils import timezone
 
 from . import pond_state
 
@@ -299,7 +300,9 @@ def _greeting(hour):
 
 def base_context(active):
     """Everything the shell (sidebar + top bar + background) needs."""
-    now = datetime.now()
+    # localtime(), not datetime.now(): the greeting has to follow the farm's
+    # TIME_ZONE, not whatever clock the server happens to run on.
+    now = timezone.localtime()
     return {
         "active": active,
         "nav_items": NAV_ITEMS,
@@ -361,6 +364,81 @@ def ponds(request):
     return render(request, "dashboard/ponds.html", context)
 
 
+# ---------------------------------------------------------------------------
+# Control
+# ---------------------------------------------------------------------------
+
+def _selected_pond(request, payload):
+    """The pond in ``?pond=`` if it exists, else the first one."""
+    selected = request.GET.get("pond") or request.POST.get("pond") or "1"
+    return selected if selected in payload else "1"
+
+
+def get_devices(pond_id):
+    """One row per switchable device, ready for the template."""
+    actuators = pond_state.POND_ACTUATORS[pond_id]
+    return [
+        dict(spec, on=actuators[spec["key"]],
+             state="ON" if actuators[spec["key"]] else "OFF")
+        for spec in pond_state.DEVICES
+    ]
+
+
+def control(request):
+    """
+    Run the pond equipment.
+
+    A POST flips exactly one device and redirects back, so a refresh cannot
+    re-fire a command - the browser has nothing to resubmit. That is also why
+    there is no JavaScript here: the page is the whole control surface, and it
+    keeps working on a phone with a bad connection at the pond edge.
+    """
+    payload = pond_state.build_all_ponds()
+    selected = _selected_pond(request, payload)
+    pond_id = int(selected)
+
+    if request.method == "POST":
+        key = request.POST.get("device", "")
+        turn_on = request.POST.get("state") == "on"
+
+        # The form is ours, so an unknown key means the request was hand-made.
+        if key not in pond_state.DEVICE_KEYS:
+            return HttpResponseBadRequest("Unknown device")
+
+        label = next(d["label"] for d in pond_state.DEVICES if d["key"] == key)
+        oxygen = pond_state.derive_state(pond_id)["oxygenState"]
+
+        # The one interlock worth having before the rest exist: switching the
+        # aerator off in a pond that is already oxygen-critical is how a stock
+        # is lost in an afternoon. Everything else is reversible in seconds.
+        if key == "aeration" and not turn_on and oxygen == "CRITICAL":
+            messages.error(
+                request,
+                f"Aerator held ON - {payload[selected]['name']} is "
+                f"oxygen-critical. Clear the oxygen alert first.",
+            )
+        else:
+            pond_state.set_device(pond_id, key, turn_on)
+            messages.success(
+                request,
+                f"{label} switched {'ON' if turn_on else 'OFF'} "
+                f"on {payload[selected]['name']}.",
+            )
+
+        return redirect(f"{reverse('dashboard:control')}?pond={selected}")
+
+    context = base_context("control")
+    context.update({
+        "page_title": "Control",
+        "pond": payload[selected],
+        "selected_pond": selected,
+        "pond_ids": sorted(payload, key=int),
+        "devices": get_devices(pond_id),
+        "feeder": pond_state.POND_ACTUATORS[pond_id]["feeder"],
+    })
+    return render(request, "dashboard/control.html", context)
+
+
 def dashboard(request):
     context = base_context("dashboard")
     context.update({
@@ -382,9 +460,6 @@ PLACEHOLDER_PAGES = {
                      "Why it is happening and what comes next: anomaly "
                      "detection, risk analysis, trends and plain-language "
                      "explanations of the pond's behaviour."),
-    "control": ("Control",
-                "Run and automate the pond equipment - aerators, pumps, "
-                "feeders - with schedules and safety interlocks."),
     "nest": ("Nest",
              "The health of the AQUA NEST unit itself: sensor status, "
              "ESP32 state, battery, solar input and connectivity."),

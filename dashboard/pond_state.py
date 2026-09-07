@@ -102,13 +102,52 @@ POND_READINGS = {
 #: Actuator state per pond. Ponds 2 and 5 are being aerated, which the twin
 #: shows as bubbles and surface movement.
 POND_ACTUATORS = {
-    1: {"aeration": False, "pump": False, "feeder": "5:30 PM"},
-    2: {"aeration": True, "pump": True, "feeder": "5:30 PM"},
-    3: {"aeration": False, "pump": True, "feeder": "5:45 PM"},
-    4: {"aeration": False, "pump": True, "feeder": "6:00 PM"},
-    5: {"aeration": True, "pump": True, "feeder": "Paused"},
-    6: {"aeration": False, "pump": False, "feeder": "5:30 PM"},
+    1: {"aeration": False, "pump": False, "light": False, "feeder": "5:30 PM"},
+    2: {"aeration": True, "pump": True, "light": False, "feeder": "5:30 PM"},
+    3: {"aeration": False, "pump": True, "light": True, "feeder": "5:45 PM"},
+    4: {"aeration": False, "pump": True, "light": False, "feeder": "6:00 PM"},
+    5: {"aeration": True, "pump": True, "light": True, "feeder": "Paused"},
+    6: {"aeration": False, "pump": False, "light": False, "feeder": "5:30 PM"},
 }
+
+#: The switchable equipment CONTROL puts a button on, in display order. `key`
+#: indexes POND_ACTUATORS. The feeder is deliberately absent: it runs on a
+#: schedule, and a schedule is not an on/off switch.
+DEVICES = [
+    {"key": "aeration", "label": "Aerator", "icon": "wave",
+     "detail": "Paddlewheel · drives dissolved oxygen up"},
+    {"key": "pump", "label": "Motor pump", "icon": "droplet",
+     "detail": "Inlet / water exchange"},
+    {"key": "light", "label": "Pond light", "icon": "bolt",
+     "detail": "Night lighting over the water"},
+]
+
+DEVICE_KEYS = frozenset(device["key"] for device in DEVICES)
+
+
+def set_device(pond_id, key, on):
+    """
+    Switch one piece of equipment, returning its new state.
+
+    THIS IS THE HARDWARE SEAM. Everything above it - the page, the interlock,
+    the state engine - is finished; below it there is currently nothing but a
+    dictionary. Send the real command from here (README: "Connecting real
+    equipment") and keep the write below as the optimistic local echo until
+    the controller reports back.
+
+    ponytail: the state lives in this module dict, so it resets on restart and
+    each gunicorn worker keeps its own copy. That is correct only while the
+    dict is also the only source of truth. The moment real equipment is wired
+    in, the device's *reported* state replaces this as the thing displayed,
+    and the dict becomes a cache - which is the same change that fixes both.
+    """
+    if pond_id not in POND_ACTUATORS:
+        raise KeyError(pond_id)
+    if key not in DEVICE_KEYS:
+        raise KeyError(key)
+
+    POND_ACTUATORS[pond_id][key] = bool(on)
+    return POND_ACTUATORS[pond_id][key]
 
 #: Short trend hint per pond: which way dissolved oxygen has been moving.
 #: Separating this from the instantaneous reading is what lets the engine tell
@@ -381,6 +420,7 @@ def build_pond(pond_id):
         "actuators": {
             "aeration": "ON" if actuators["aeration"] else "OFF",
             "pump": "ON" if actuators["pump"] else "OFF",
+            "light": "ON" if actuators["light"] else "OFF",
             "feeder": actuators["feeder"],
         },
     }
