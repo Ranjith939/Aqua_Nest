@@ -1,0 +1,52 @@
+{% load static asset_tags %}<!DOCTYPE html>
+{% comment %}
+  Sign in and sign up share this page (mode = "login" | "signup"). It sits
+  outside base.html on purpose: the shell needs a signed-in user.
+{% endcomment %}
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#06283D">
+  <title>{% if mode == "signup" %}Create account{% else %}Sign in{% endif %} &middot; AQUA NEST</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='88'%3E%F0%9F%90%9F%3C/text%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Pixelify+Sans:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="{% static_v 'dashboard/css/ocean.css' %}">
+  <link rel="stylesheet" href="{% static_v 'dashboard/css/retro.css' %}">
+  <link rel="stylesheet" href="{% static_v 'dashboard/css/dashboard.css' %}">
+</head>
+<body class="app-body">
+  {% include "partials/icons.html" %}
+  {% include "partials/ocean.html" %}
+
+  <main class="auth">
+    <section class="panel glass panel--placeholder auth__card">
+      <span class="placeholder__badge">AQUA NEST OS</span>
+      <h1 class="placeholder__title">{% if mode == "signup" %}Create account{% else %}Sign in{% endif %}</h1>
+
+      <form method="post" class="form-stack" novalidate>
+        {% csrf_token %}
+        {{ form }}
+        {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
+        <button class="btn btn--primary" type="submit">
+          {% if mode == "signup" %}Create account{% else %}Sign in{% endif %}
+        </button>
+      </form>
+
+      <p class="auth__switch">
+        {% if mode == "signup" %}
+          Already have an account? <a href="{% url 'login' %}">Sign in</a>
+        {% else %}
+          New here? <a href="{% url 'signup' %}">Create an account</a>
+        {% endif %}
+      </p>
+    </section>
+  </main>
+
+  <div class="crt" aria-hidden="true"></div>
+  <script src="{% static_v 'dashboard/js/ocean.js' %}" defer></script>
+</body>
+</html>

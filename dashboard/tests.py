@@ -9,6 +9,7 @@ Run with:  python manage.py test
 
 import copy
 
+from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
 
@@ -124,8 +125,16 @@ class BuildPondTests(TestCase):
         self.assertEqual(set(payload), {str(i) for i in pond_state.POND_READINGS})
 
 
+def sign_in(test):
+    """Every page sits behind LoginRequiredMiddleware."""
+    test.client.force_login(get_user_model().objects.create_user("tester"))
+
+
 class PageTests(TestCase):
     """Smoke tests: every route in the sidebar renders."""
+
+    def setUp(self):
+        sign_in(self)
 
     def test_ponds_page_renders(self):
         response = self.client.get(reverse("dashboard:ponds"))
@@ -178,6 +187,7 @@ class ControlTests(TestCase):
     """
 
     def setUp(self):
+        sign_in(self)
         self._saved = copy.deepcopy(pond_state.POND_ACTUATORS)
         self.addCleanup(self._restore)
 
@@ -236,3 +246,75 @@ class ControlTests(TestCase):
         # The feeder is in POND_ACTUATORS but is not switchable.
         with self.assertRaises(KeyError):
             pond_state.set_device(1, "feeder", True)
+
+
+class AccountTests(TestCase):
+    """Sign in, sign up, sign out and preferences."""
+
+    password = "Reef-tank-2048"
+
+    def make_user(self):
+        return get_user_model().objects.create_user(
+            "ravi", "ravi@example.com", self.password, first_name="Ravi")
+
+    def test_every_page_needs_a_signed_in_user(self):
+        for name in ("dashboard:ponds", "dashboard:control", "account"):
+            with self.subTest(page=name):
+                response = self.client.get(reverse(name))
+                self.assertRedirects(
+                    response, f"{reverse('login')}?next={reverse(name)}")
+
+    def test_login_and_signup_pages_are_public(self):
+        for name in ("login", "signup"):
+            with self.subTest(page=name):
+                self.assertEqual(self.client.get(reverse(name)).status_code, 200)
+
+    def test_signup_creates_the_account_and_signs_in(self):
+        response = self.client.post(reverse("signup"), {
+            "username": "meena", "first_name": "Meena", "email": "m@example.com",
+            "password1": self.password, "password2": self.password})
+        self.assertRedirects(response, reverse("dashboard:ponds"))
+        page = self.client.get(reverse("dashboard:ponds"))
+        self.assertEqual(page.context["farm_user"]["name"], "Meena")
+
+    def test_signup_rejects_mismatched_passwords(self):
+        response = self.client.post(reverse("signup"), {
+            "username": "meena", "password1": self.password, "password2": "nope"})
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(get_user_model().objects.filter(username="meena").exists())
+
+    def test_login_then_sign_out(self):
+        self.make_user()
+        response = self.client.post(reverse("login"),
+                                    {"username": "ravi", "password": self.password})
+        self.assertRedirects(response, reverse("dashboard:ponds"))
+        self.assertRedirects(self.client.post(reverse("logout")), reverse("login"))
+        self.assertEqual(self.client.get(reverse("dashboard:ponds")).status_code, 302)
+
+    def test_top_bar_shows_the_signed_in_user(self):
+        self.client.force_login(self.make_user())
+        user = self.client.get(reverse("dashboard:ponds")).context["farm_user"]
+        self.assertEqual((user["name"], user["initials"]), ("Ravi", "R"))
+
+    def test_preferences_saves_the_profile(self):
+        user = self.make_user()
+        self.client.force_login(user)
+        self.client.post(reverse("account"), {
+            "action": "profile", "first_name": "Ravi", "last_name": "Shetty",
+            "email": "ravi@farm.example"})
+        user.refresh_from_db()
+        self.assertEqual(user.get_full_name(), "Ravi Shetty")
+
+    def test_password_change_keeps_this_session_signed_in(self):
+        user = self.make_user()
+        self.client.force_login(user)
+        new = "Paddle-wheel-4096"
+        self.client.post(reverse("account"), {
+            "action": "password", "old_password": self.password,
+            "new_password1": new, "new_password2": new})
+        user.refresh_from_db()
+        self.assertTrue(user.check_password(new))
+        self.assertEqual(self.client.get(reverse("dashboard:ponds")).status_code, 200)
+
+    def test_admin_login_is_reachable_signed_out(self):
+        self.assertEqual(self.client.get(reverse("admin:login")).status_code, 200)

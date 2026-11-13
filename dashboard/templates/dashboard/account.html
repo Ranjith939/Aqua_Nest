@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}Account &middot; AQUA NEST{% endblock %}
+
+{% block content %}
+  <section class="panel glass panel--placeholder account reveal">
+    <span class="placeholder__badge">Preferences</span>
+    <h1 class="placeholder__title">{{ farm_user.full_name }}</h1>
+    <p class="placeholder__blurb">Signed in as <strong>{{ user.get_username }}</strong> &middot; {{ farm_user.role }}</p>
+
+    {% if messages %}
+      <ul class="control-messages account__messages">
+        {% for message in messages %}
+          <li class="control-message control-message--{{ message.tags }}">
+            <svg class="icon icon--sm"><use href="#i-check"></use></svg>
+            {{ message }}
+          </li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+
+    <form method="post" class="form-stack" id="profile">
+      {% csrf_token %}
+      <h2 class="account__heading">Profile</h2>
+      {{ profile_form }}
+      <button class="btn btn--primary" type="submit" name="action" value="profile">Save profile</button>
+    </form>
+
+    <form method="post" class="form-stack" id="password">
+      {% csrf_token %}
+      <h2 class="account__heading">Password</h2>
+      {{ password_form }}
+      <button class="btn btn--ghost" type="submit" name="action" value="password">Change password</button>
+    </form>
+  </section>
+{% endblock %}

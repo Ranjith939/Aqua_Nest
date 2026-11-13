@@ -86,15 +86,24 @@
       </button>
       <div class="dropdown__menu dropdown__menu--right glass glass--pop" data-dropdown-menu hidden>
         <p class="dropdown__title">{{ farm_user.full_name }}</p>
-        <button class="dropdown__item dropdown__item--slim" type="button">
+        <a class="dropdown__item dropdown__item--slim" href="{% url 'account' %}#profile">
           <svg class="icon icon--sm"><use href="#i-user"></use></svg> My profile
-        </button>
-        <button class="dropdown__item dropdown__item--slim" type="button">
+        </a>
+        <a class="dropdown__item dropdown__item--slim" href="{% url 'account' %}">
           <svg class="icon icon--sm"><use href="#i-gear"></use></svg> Preferences
-        </button>
-        <button class="dropdown__item dropdown__item--slim" type="button">
-          <svg class="icon icon--sm"><use href="#i-logout"></use></svg> Sign out
-        </button>
+        </a>
+        {% if user.is_staff %}
+          <a class="dropdown__item dropdown__item--slim" href="{% url 'admin:index' %}">
+            <svg class="icon icon--sm"><use href="#i-sliders"></use></svg> Admin
+          </a>
+        {% endif %}
+        {# Django's logout is POST-only, so a link cannot sign anyone out. #}
+        <form method="post" action="{% url 'logout' %}">
+          {% csrf_token %}
+          <button class="dropdown__item dropdown__item--slim" type="submit">
+            <svg class="icon icon--sm"><use href="#i-logout"></use></svg> Sign out
+          </button>
+        </form>
       </div>
     </div>
   </div>

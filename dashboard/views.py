@@ -11,7 +11,11 @@ are the contract the templates are written against, so the HTML will not
 need to change.
 """
 
+from django import forms
 from django.contrib import messages
+from django.contrib.auth import get_user_model, login, update_session_auth_hash
+from django.contrib.auth.decorators import login_not_required
+from django.contrib.auth.forms import PasswordChangeForm, UserCreationForm
 from django.http import Http404, HttpResponseBadRequest
 from django.shortcuts import redirect, render
 from django.urls import reverse
@@ -298,7 +302,18 @@ def _greeting(hour):
     return "Good Evening"
 
 
-def base_context(active):
+def _farm_user(user):
+    """The signed-in account, shaped for the top bar and hero."""
+    full_name = user.get_full_name() or user.get_username()
+    return {
+        "name": user.first_name or user.get_username(),
+        "full_name": full_name,
+        "role": "Administrator" if user.is_superuser else "Farm Manager",
+        "initials": "".join(word[0] for word in full_name.split()[:2]).upper(),
+    }
+
+
+def base_context(request, active):
     """Everything the shell (sidebar + top bar + background) needs."""
     # localtime(), not datetime.now(): the greeting has to follow the farm's
     # TIME_ZONE, not whatever clock the server happens to run on.
@@ -308,12 +323,7 @@ def base_context(active):
         "nav_items": NAV_ITEMS,
         "farms": FARMS,
         "current_farm": FARMS[0],
-        "farm_user": {
-            "name": "Charith",
-            "full_name": "Charith Kumar",
-            "role": "Farm Manager",
-            "initials": "CK",
-        },
+        "farm_user": _farm_user(request.user),
         "notifications_count": 3,
         # The top-bar notification popover renders on every page.
         "alerts": get_alerts(),
@@ -339,7 +349,7 @@ def ponds(request):
     The Living Digital Twin is the hero. Everything else on the page is the
     technical evidence behind what the twin is showing.
     """
-    context = base_context("ponds")
+    context = base_context(request, "ponds")
 
     ponds_payload = pond_state.build_all_ponds()
     selected = request.GET.get("pond", "1")
@@ -427,7 +437,7 @@ def control(request):
 
         return redirect(f"{reverse('dashboard:control')}?pond={selected}")
 
-    context = base_context("control")
+    context = base_context(request, "control")
     context.update({
         "page_title": "Control",
         "pond": payload[selected],
@@ -440,7 +450,7 @@ def control(request):
 
 
 def dashboard(request):
-    context = base_context("dashboard")
+    context = base_context(request, "dashboard")
     context.update({
         "page_title": "Dashboard",
         "kpis": get_kpis(),
@@ -474,6 +484,60 @@ def placeholder(request, key):
     if key not in PLACEHOLDER_PAGES:
         raise Http404("Unknown page")
     title, blurb = PLACEHOLDER_PAGES[key]
-    context = base_context(key)
+    context = base_context(request, key)
     context.update({"page_title": title, "blurb": blurb})
     return render(request, "dashboard/placeholder.html", context)
+
+
+# ---------------------------------------------------------------------------
+# Accounts
+# ---------------------------------------------------------------------------
+
+class SignupForm(UserCreationForm):
+    class Meta(UserCreationForm.Meta):
+        fields = ("username", "first_name", "email")
+
+
+@login_not_required
+def signup(request):
+    """Public sign-up: create the account and go straight to the dashboard."""
+    if request.user.is_authenticated:
+        return redirect("dashboard:ponds")
+    form = SignupForm(request.POST or None)
+    if form.is_valid():
+        login(request, form.save())
+        return redirect("dashboard:ponds")
+    return render(request, "dashboard/auth.html", {"form": form, "mode": "signup"})
+
+
+ProfileForm = forms.modelform_factory(
+    get_user_model(), fields=("first_name", "last_name", "email"))
+
+
+def account(request):
+    """Preferences: edit your name/email, or change your password."""
+    profile = ProfileForm(instance=request.user)
+    password = PasswordChangeForm(request.user)
+
+    if request.method == "POST":
+        action = request.POST.get("action")
+        if action == "profile":
+            profile = ProfileForm(request.POST, instance=request.user)
+            if profile.is_valid():
+                profile.save()
+                messages.success(request, "Profile saved.")
+                return redirect("account")
+        elif action == "password":
+            password = PasswordChangeForm(request.user, request.POST)
+            if password.is_valid():
+                # Keeps this session signed in; other sessions are logged out.
+                update_session_auth_hash(request, password.save())
+                messages.success(request, "Password changed.")
+                return redirect("account")
+        else:
+            return HttpResponseBadRequest("Unknown action")
+
+    context = base_context(request, "account")
+    context.update({"page_title": "Account", "profile_form": profile,
+                    "password_form": password})
+    return render(request, "dashboard/account.html", context)

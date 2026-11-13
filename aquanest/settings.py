@@ -7,6 +7,7 @@ development-safe default.
 """
 
 from pathlib import Path
+from urllib.parse import parse_qsl, unquote, urlparse
 
 from decouple import Csv, config
 
@@ -41,6 +42,9 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    # Every page needs a signed-in user; views opt out with @login_not_required
+    # (the login, sign-up and admin login pages already do).
+    "django.contrib.auth.middleware.LoginRequiredMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
@@ -68,16 +72,31 @@ WSGI_APPLICATION = "aquanest.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 #
-# SQLite only: the app defines no models, so the database exists purely for
-# the admin's auth/session tables. No DATABASE_URL parsing until there is
-# something worth putting in a real database.
+# Production uses Neon Postgres: the Vercel Neon integration sets DATABASE_URL
+# (the pooled connection string). Without it - local development - SQLite.
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+DATABASE_URL = config("DATABASE_URL", default="")
+if DATABASE_URL:
+    _db = urlparse(DATABASE_URL)
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": _db.path.lstrip("/"),
+            "USER": unquote(_db.username or ""),
+            "PASSWORD": unquote(_db.password or ""),
+            "HOST": _db.hostname,
+            "PORT": _db.port or 5432,
+            # sslmode / channel_binding from the URL go straight to libpq.
+            "OPTIONS": dict(parse_qsl(_db.query)),
+        }
     }
-}
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
+        }
+    }
 
 
 # Password validation
@@ -97,6 +116,11 @@ AUTH_PASSWORD_VALIDATORS = [
         "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
 ]
+
+
+LOGIN_URL = "login"
+LOGIN_REDIRECT_URL = "dashboard:ponds"
+LOGOUT_REDIRECT_URL = "login"
 
 
 # Internationalization

@@ -34,13 +34,18 @@ Covers the pond state engine (band edges, health scoring, the demo-data
 tables staying in step with each other) and a smoke test that every route
 in the sidebar renders.
 
-No `migrate` needed — the app defines no models. Run it only if you want the
-Django admin at `/admin/` (it needs the auth/session tables in `db.sqlite3`):
+Every page needs a signed-in account. Locally that lives in SQLite:
 
 ```bash
 python manage.py migrate
 python manage.py createsuperuser
 ```
+
+In production (Vercel) the database is Neon Postgres: the Neon integration
+sets `DATABASE_URL`, and `settings.py` switches to Postgres whenever it is
+present. Vercel does not run migrations — after adding models, run
+`migrate` once with `DATABASE_URL` set to Neon's `DATABASE_URL_UNPOOLED`
+(`vercel env pull` fetches it).
 
 ## Routes
 
@@ -52,6 +57,9 @@ python manage.py createsuperuser
 | `/nest/`         | Placeholder                                      |
 | `/life/`         | Placeholder                                      |
 | `/overview/`     | Parked farm-wide dashboard (not in the sidebar)  |
+| `/accounts/login/`    | Sign in (public)                            |
+| `/accounts/signup/`   | Create an account (public)                  |
+| `/accounts/settings/` | Preferences — profile and password          |
 | `/admin/`        | Django admin                                     |
 
 ## Connecting real equipment

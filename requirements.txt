@@ -4,3 +4,5 @@ python-decouple
 # Serves collected static files from the WSGI process — no nginx static config.
 whitenoise
 gunicorn
+# Postgres driver for Neon in production (DATABASE_URL). Unused with SQLite.
+psycopg[binary]
