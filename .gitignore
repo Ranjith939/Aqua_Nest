@@ -26,3 +26,4 @@ Thumbs.db
 
 # Agent skills installed by the `skills` CLI
 .agents/
+.vercel

@@ -12,9 +12,9 @@ there are no models, APIs or sensor integrations yet.
 ## Run
 
 ```bash
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1   
-pip install -r requirements.txt
+py -3.13 -m venv .venv          # the global Python 3.13
+.\.venv\Scripts\Activate.ps1
+python -m pip install -r requirements.txt
 python manage.py runserver 9003
 ```
 
